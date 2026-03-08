@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Arasbey Gayrimenkul Pro v19</title>
+    <title>Arasbey Premium</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
@@ -11,174 +11,218 @@
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA-sbCXLgoOX-T8kPJ1lD1SKs5exWjBCcQ&callback=initMap" async defer></script>
 
     <style>
-        body { font-family: -apple-system, sans-serif; margin: 0; background: #f0f2f5; color: #333; }
-        .tabs { display: flex; background: #1b5e20; padding: 10px; position: sticky; top: 0; z-index: 1000; }
-        .tab { flex: 1; text-align: center; color: white; padding: 12px; font-weight: bold; cursor: pointer; border-radius: 8px; font-size: 14px; }
-        .tab.active { background: #2e7d32; }
-        .content { padding: 15px; display: none; }
-        .content.active { display: block; }
-        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 500px; margin: auto; }
-        #map-picker { height: 300px; width: 100%; border-radius: 12px; margin-top: 10px; border: 1.5px solid #ddd; }
-        input, button { width: 100%; padding: 12px; margin-top: 10px; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; font-size: 15px; }
-        .save-btn { background: #2e7d32; color: white; border: none; font-weight: bold; margin-top: 20px; }
-        .record-item { background: white; padding: 15px; border-radius: 12px; margin-bottom: 12px; border-left: 6px solid #2e7d32; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .record-img { width: 100%; border-radius: 8px; margin-top: 10px; max-height: 200px; object-fit: cover; }
-        .action-links { display: flex; gap: 8px; margin-top: 12px; }
-        .action-links a { flex: 1; text-align: center; padding: 10px; border-radius: 8px; text-decoration: none; color: white; font-size: 12px; font-weight: bold; }
-        .gmaps-link { background: #4285F4; }
-        .tkgm-link { background: #e65100; }
-        #coord-info { font-size: 11px; color: #2e7d32; font-weight: bold; text-align: center; margin-top: 5px; }
+        :root {
+            --primary: #113224; /* Kurumsal Koyu Yeşil */
+            --accent: #c4a165;  /* Zarif Altın Rengi */
+            --bg: #f5f7f6;
+            --text: #333;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; color: var(--text); }
+        
+        /* Modern Üst Başlık */
+        .header { background: white; padding: 20px 15px 15px; text-align: center; border-bottom: 1px solid #eaeaea; position: sticky; top: 0; z-index: 100; }
+        .header h1 { margin: 0; font-size: 20px; color: var(--primary); font-weight: 800; letter-spacing: -0.5px; }
+        .header p { margin: 3px 0 0; font-size: 11px; color: var(--accent); font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; }
+
+        /* Zarif Alt Menü (App Style) */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; box-shadow: 0 -4px 20px rgba(0,0,0,0.06); z-index: 1000; padding-bottom: env(safe-area-inset-bottom); }
+        .nav-item { flex: 1; text-align: center; padding: 12px 0; color: #a0a0a0; font-size: 11px; font-weight: 700; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 0.5px; }
+        .nav-item.active { color: var(--primary); }
+        .nav-icon { font-size: 22px; display: block; margin-bottom: 4px; filter: grayscale(100%) opacity(50%); transition: 0.3s; }
+        .nav-item.active .nav-icon { filter: none; }
+
+        /* İçerik Alanları */
+        .content { display: none; padding: 15px; max-width: 500px; margin: auto; }
+        .content.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Premium Form Kartları */
+        .form-card { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 15px; }
+        .form-label { font-size: 11px; font-weight: 800; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; display: block; }
+        input { width: 100%; padding: 16px; border: 1.5px solid #f0f0f0; border-radius: 12px; box-sizing: border-box; font-size: 15px; margin-bottom: 15px; background: #fafafa; transition: 0.3s; color: var(--text); font-weight: 500; }
+        input:focus { border-color: var(--accent); outline: none; background: white; box-shadow: 0 0 0 3px rgba(196, 161, 101, 0.1); }
+        .row { display: flex; gap: 12px; }
+        
+        /* Harita Alanı */
+        #map-picker { height: 250px; border-radius: 12px; border: 1px solid #eaeaea; margin-bottom: 5px; }
+        .coord-text { text-align: center; font-size: 11px; color: var(--accent); font-weight: 600; margin-bottom: 15px; }
+
+        /* Butonlar */
+        .btn-primary { background: var(--primary); color: white; border: none; padding: 18px; width: 100%; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 8px 20px rgba(17, 50, 36, 0.2); }
+        .btn-primary:active { transform: scale(0.98); }
+        
+        /* Liste Kartları */
+        .record-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.04); margin-bottom: 20px; border: 1px solid #f0f0f0; }
+        .record-img { width: 100%; height: 200px; object-fit: cover; }
+        .record-body { padding: 18px; }
+        .record-title { font-size: 18px; font-weight: 800; color: var(--primary); margin: 0 0 5px; }
+        .record-info { font-size: 13px; color: #666; font-weight: 500; margin-bottom: 15px; display: flex; align-items: center; gap: 5px; }
+        .action-row { display: flex; gap: 10px; }
+        .btn-action { flex: 1; padding: 12px; border-radius: 10px; text-align: center; text-decoration: none; font-size: 12px; font-weight: 800; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .btn-maps { background: #f0f4f8; color: #1a73e8; }
+        .btn-tkgm { background: rgba(196, 161, 101, 0.15); color: #9c7b3c; }
     </style>
 </head>
 <body>
 
-<div class="tabs">
-    <div class="tab active" onclick="switchTab('kayit-form')">➕ Yeni Kayıt</div>
-    <div class="tab" onclick="switchTab('kayitlar-liste'); listele()">📋 Kayıtlar</div>
-</div>
+    <div class="header">
+        <h1>ARASBEY GAYRİMENKUL</h1>
+        <p>Premium Portföy Sistemi</p>
+    </div>
 
-<div id="kayit-form" class="content active">
-    <div class="card">
-        <h3 style="margin:0; color:#1b5e20; text-align:center;">📍 Haritadan Arsayı Seç</h3>
-        <div id="map-picker"></div>
-        <div id="coord-info">Haritaya tıklayarak yer işaretleyin</div>
-        
-        <label style="font-size:12px; font-weight:bold; margin-top:15px; display:block;">Arazi Detayları</label>
-        <input type="text" id="ilce" placeholder="İlçe (Etimesgut, Sincan vb.)">
-        <input type="text" id="mahalle" placeholder="Mahalle">
-        <div style="display:flex; gap:10px;">
-            <input type="number" id="ada" placeholder="Ada">
-            <input type="number" id="parsel" placeholder="Parsel">
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab('tab-yeni')">
+            <span class="nav-icon">📍</span> Yeni Ekle
         </div>
-        <input type="number" step="0.01" id="m2" placeholder="Metrekare (m²)">
-        
-        <label style="font-size:12px; font-weight:bold; margin-top:10px; display:block;">Fotoğraf</label>
-        <input type="file" id="foto" accept="image/*">
-        
-        <button class="save-btn" id="saveBtn" onclick="kaydet()">BULUTA KAYDET</button>
+        <div class="nav-item" onclick="switchTab('tab-liste'); portfoyGetir()">
+            <span class="nav-icon">📁</span> Arşiv
+        </div>
     </div>
-</div>
 
-<div id="kayitlar-liste" class="content">
-    <div id="liste-container" style="max-width:500px; margin:auto;">
-        <p style="text-align:center; color:#666;">Yükleniyor...</p>
-    </div>
-</div>
-
-<script>
-    // Supabase Bağlantın
-    const S_URL = 'https://khzbzwmibqstspoknsxu.supabase.co';
-    const S_KEY = 'sb_publishable_M8VSs5G9EGjIJgNF2Bn14w_vGi95O0I';
-    const _supa = supabase.createClient(S_URL, S_KEY);
-
-    let map, marker;
-    let selectedLat = 39.94, selectedLng = 32.66; // Etimesgut merkezli başla
-
-    // Google Haritayı Başlat
-    function initMap() {
-        map = new google.maps.Map(document.getElementById("map-picker"), {
-            center: { lat: selectedLat, lng: selectedLng },
-            zoom: 14,
-            mapTypeId: 'hybrid' // Uydu görüntüsü + sokak adları
-        });
-
-        marker = new google.maps.Marker({
-            position: { lat: selectedLat, lng: selectedLng },
-            map: map,
-            draggable: true,
-            animation: google.maps.Animation.DROP
-        });
-
-        map.addListener("click", (e) => {
-            placeMarker(e.latLng);
-        });
-
-        marker.addListener("dragend", (e) => {
-            selectedLat = e.latLng.lat();
-            selectedLng = e.latLng.lng();
-            updateCoordText();
-        });
-    }
-
-    function placeMarker(location) {
-        marker.setPosition(location);
-        selectedLat = location.lat();
-        selectedLng = location.lng();
-        updateCoordText();
-    }
-
-    function updateCoordText() {
-        document.getElementById('coord-info').innerText = "📍 Seçili: " + selectedLat.toFixed(5) + ", " + selectedLng.toFixed(5);
-    }
-
-    function switchTab(id) {
-        document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        event.currentTarget.classList.add('active');
-    }
-
-    // KAYDETME
-    async function kaydet() {
-        const btn = document.getElementById('saveBtn');
-        const file = document.getElementById('foto').files[0];
-        btn.disabled = true; btn.innerText = "Yükleniyor...";
-
-        try {
-            let imgUrl = "";
-            if (file) {
-                const fName = `${Date.now()}-${file.name.replace(/\s/g, '_')}`;
-                const { data: upData, error: upError } = await _supa.storage.from('arsalar').upload(fName, file);
-                if (upError) throw upError;
-                imgUrl = `${S_URL}/storage/v1/object/public/arsalar/${fName}`;
-            }
-
-            const veri = {
-                ilce: document.getElementById('ilce').value || "Belirtilmedi",
-                mahalle: document.getElementById('mahalle').value,
-                ada_no: parseInt(document.getElementById('ada').value) || 0,
-                parsel_no: parseInt(document.getElementById('parsel').value) || 0,
-                m2: parseFloat(document.getElementById('m2').value) || 0,
-                konum_lat: selectedLat,
-                konum_lng: selectedLng,
-                fotograf_url: imgUrl
-            };
-
-            const { error } = await _supa.from('arsa_kayitlari').insert([veri]);
-            if (error) throw error;
-
-            alert("Kayıt Başarılı! 🚀");
-            location.reload();
-        } catch (err) {
-            alert("Hata: " + err.message);
-            btn.disabled = false; btn.innerText = "TEKRAR DENE";
-        }
-    }
-
-    // LİSTELEME
-    async function listele() {
-        const container = document.getElementById('liste-container');
-        container.innerHTML = "<p style='text-align:center;'>Veriler çekiliyor...</p>";
+    <div id="tab-yeni" class="content active">
         
-        const { data, error } = await _supa.from('arsa_kayitlari').select('*').order('created_at', { ascending: false });
+        <div class="form-card">
+            <label class="form-label">Arazı Konumu</label>
+            <div id="map-picker"></div>
+            <div class="coord-text" id="coord-info">Haritaya tıklayarak işaretleyin</div>
+        </div>
 
-        if (error) { container.innerHTML = "Hata oluştu."; return; }
-        if (data.length === 0) { container.innerHTML = "Henüz kayıtlı arsa yok."; return; }
-        
-        container.innerHTML = data.map(i => `
-            <div class="record-item">
-                <div style="font-weight:bold; color:#1b5e20; font-size:16px;">${i.ilce.toUpperCase()} / ${i.mahalle}</div>
-                <div style="font-size:13px; color:#666; margin-top:4px;">
-                    Ada: <b>${i.ada_no}</b> | Parsel: <b>${i.parsel_no}</b> | <b>${i.m2} m²</b>
-                </div>
-                ${i.fotograf_url ? `<img src="${i.fotograf_url}" class="record-img">` : ''}
-                <div class="action-links">
-                    <a href="https://www.google.com/maps/search/?api=1&query=${i.konum_lat},${i.konum_lng}" target="_blank" class="gmaps-link">Google Harita</a>
-                    <a href="https://parselsorgu.tkgm.gov.tr/#ara/cografi/${i.konum_lat}/${i.konum_lng}" target="_blank" class="tkgm-link">TKGM Sorgu</a>
-                </div>
+        <div class="form-card">
+            <label class="form-label">Tapu & Konum Bilgileri</label>
+            <input type="text" id="ilce" placeholder="İlçe (Örn: Etimesgut)">
+            <input type="text" id="mahalle" placeholder="Mahalle Adı">
+            <div class="row">
+                <input type="number" id="ada" placeholder="Ada No">
+                <input type="number" id="parsel" placeholder="Parsel No">
             </div>
-        `).join('');
-    }
-</script>
+            <input type="number" step="0.01" id="m2" placeholder="Toplam Metrekare (m²)">
+        </div>
+
+        <div class="form-card">
+            <label class="form-label">Arazi Görseli</label>
+            <input type="file" id="foto" accept="image/*" style="padding: 10px; background: white; border: none;">
+        </div>
+
+        <button class="btn-primary" id="saveBtn" onclick="sistemeIsle()">Sisteme Kaydet</button>
+    </div>
+
+    <div id="tab-liste" class="content">
+        <div id="liste-container">
+            <p style="text-align:center; color:#888; font-size:13px; font-weight:500;">Portföy yükleniyor...</p>
+        </div>
+    </div>
+
+    <script>
+        const S_URL = 'https://khzbzwmibqstspoknsxu.supabase.co';
+        const S_KEY = 'sb_publishable_M8VSs5G9EGjIJgNF2Bn14w_vGi95O0I';
+        const _client = supabase.createClient(S_URL, S_KEY);
+
+        let map, marker;
+        let cLat = 39.94, cLng = 32.66; 
+
+        // Sekme Kontrolü
+        function switchTab(id) {
+            document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(t => t.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        // Google Maps Kurulum
+        function initMap() {
+            map = new google.maps.Map(document.getElementById("map-picker"), {
+                center: { lat: cLat, lng: cLng },
+                zoom: 14,
+                mapTypeId: 'hybrid',
+                disableDefaultUI: true,
+                zoomControl: true
+            });
+
+            marker = new google.maps.Marker({
+                position: { lat: cLat, lng: cLng },
+                map: map,
+                draggable: true,
+                icon: { path: google.maps.SymbolPath.CIRCLE, scale: 10, fillColor: "#c4a165", fillOpacity: 1, strokeWeight: 2, strokeColor: "#113224" }
+            });
+
+            map.addListener("click", (e) => place(e.latLng));
+            marker.addListener("dragend", (e) => place(e.latLng));
+        }
+
+        function place(loc) {
+            marker.setPosition(loc);
+            cLat = loc.lat();
+            cLng = loc.lng();
+            document.getElementById('coord-info').innerText = `Seçilen Koordinat: ${cLat.toFixed(5)}, ${cLng.toFixed(5)}`;
+        }
+
+        // Veri Kaydetme İşlemi
+        async function sistemeIsle() {
+            const btn = document.getElementById('saveBtn');
+            const file = document.getElementById('foto').files[0];
+            btn.disabled = true; 
+            btn.innerText = "Yükleniyor...";
+
+            try {
+                let img = "";
+                if (file) {
+                    const fName = `${Date.now()}-${file.name.replace(/\s/g, '_')}`;
+                    const { data: uData, error: uErr } = await _client.storage.from('arsalar').upload(fName, file);
+                    if (uErr) throw uErr;
+                    img = `${S_URL}/storage/v1/object/public/arsalar/${fName}`;
+                }
+
+                const payload = {
+                    ilce: document.getElementById('ilce').value || "Belirtilmedi",
+                    mahalle: document.getElementById('mahalle').value,
+                    ada_no: parseInt(document.getElementById('ada').value) || 0,
+                    parsel_no: parseInt(document.getElementById('parsel').value) || 0,
+                    m2: parseFloat(document.getElementById('m2').value) || 0,
+                    konum_lat: cLat,
+                    konum_lng: cLng,
+                    fotograf_url: img
+                };
+
+                const { error } = await _client.from('arsa_kayitlari').insert([payload]);
+                if (error) throw error;
+
+                alert("Arasbey Premium: Portföy başarıyla kaydedildi.");
+                location.reload();
+            } catch (err) {
+                alert("Hata: " + err.message);
+                btn.disabled = false; 
+                btn.innerText = "TEKRAR DENE";
+            }
+        }
+
+        // Portföy Listeleme ve TKGM Entegrasyonu
+        async function portfoyGetir() {
+            const box = document.getElementById('liste-container');
+            box.innerHTML = "<p style='text-align:center; color:#888; font-size:13px;'>Veriler hazırlanıyor...</p>";
+            
+            const { data, error } = await _client.from('arsa_kayitlari').select('*').order('created_at', { ascending: false });
+
+            if (error) { box.innerHTML = "Sistem Hatası."; return; }
+            if (data.length === 0) { box.innerHTML = "<p style='text-align:center; color:#888;'>Henüz portföy eklenmedi.</p>"; return; }
+            
+            box.innerHTML = data.map(i => `
+                <div class="record-card">
+                    ${i.fotograf_url ? `<img src="${i.fotograf_url}" class="record-img">` : ''}
+                    <div class="record-body">
+                        <h3 class="record-title">${i.ilce.toUpperCase()} / ${i.mahalle}</h3>
+                        <div class="record-info">
+                            <span>Ada: <b>${i.ada_no}</b></span> • 
+                            <span>Parsel: <b>${i.parsel_no}</b></span> • 
+                            <span><b>${i.m2}</b> m²</span>
+                        </div>
+                        <div class="action-row">
+                            <a href="https://www.google.com/maps/dir/?api=1&destination=${i.konum_lat},${i.konum_lng}" target="_blank" class="btn-action btn-maps">🗺️ Harita</a>
+                            <a href="https://parselsorgu.tkgm.gov.tr/#ara/cografi/${i.konum_lat}/${i.konum_lng}" target="_blank" class="btn-action btn-tkgm">🏛️ TKGM</a>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+    </script>
 </body>
 </html>
