@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Arasbey Emlak v7</title>
+    <title>Arasbey Emlak v8</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -23,7 +23,7 @@
 <body>
     <div class="card">
         <h2>Arasbey Gayrimenkul</h2>
-        <div class="version">Sistem Sürümü: v7.0 (Hata Giderildi)</div>
+        <div class="version">Sistem Sürümü: v8.0 (Kesin Çözüm)</div>
         
         <label>İlçe</label>
         <input type="text" id="ilce" placeholder="Etimesgut, Sincan vb.">
@@ -42,35 +42,51 @@
     </div>
 
     <script>
-        // Değişkenleri en başta sıfırla tanımlıyoruz
+        // Değişkenleri VAR ile tanımlayarak "Initialization" hatasını tarihe gömüyoruz
+        var _client;
         var globalLat = 0;
         var globalLng = 0;
+        var URL = 'https://khzbzwmibqstspoknsxu.supabase.co';
+        var KEY = 'sb_publishable_M8VSs5G9EGjIJgNF2Bn14w_vGi95O0I';
 
-        const URL = 'https://khzbzwmibqstspoknsxu.supabase.co';
-        const KEY = 'sb_publishable_M8VSs5G9EGjIJgNF2Bn14w_vGi95O0I';
-        const _client = supabase.createClient(URL, KEY);
+        // Sayfa açılır açılmaz bağlantıyı kur
+        window.onload = function() {
+            try {
+                _client = supabase.createClient(URL, KEY);
+                console.log("Bağlantı kuruldu.");
+            } catch (e) {
+                alert("Bağlantı Hatası: " + e.message);
+            }
+        };
 
         function getGPS() {
-            const st = document.getElementById('status');
+            var st = document.getElementById('status');
             st.innerText = "GPS aranıyor...";
-            navigator.geolocation.getCurrentPosition(p => {
+            navigator.geolocation.getCurrentPosition(function(p) {
                 globalLat = p.coords.latitude;
                 globalLng = p.coords.longitude;
                 st.innerText = "✅ Konum Başarıyla Alındı";
                 st.style.color = "green";
-            }, e => {
+            }, function(e) {
                 st.innerText = "❌ Konum Alınamadı!";
                 st.style.color = "red";
             }, { enableHighAccuracy: true });
         }
 
         async function kesinKaydet() {
-            const btn = document.getElementById('saveBtn');
-            btn.innerText = "Bağlanıyor...";
+            var btn = document.getElementById('saveBtn');
+            btn.innerText = "Kaydediliyor...";
             btn.disabled = true;
 
+            if (!_client) {
+                alert("Sistem henüz hazır değil, lütfen 2 saniye bekleyip tekrar basın.");
+                btn.disabled = false;
+                btn.innerText = "BULUTA KAYDET";
+                return;
+            }
+
             try {
-                const veri = {
+                var veri = {
                     ilce: document.getElementById('ilce').value || "Belirtilmedi",
                     mahalle: document.getElementById('mahalle').value || "Belirtilmedi",
                     ada_no: parseInt(document.getElementById('ada').value) || 0,
@@ -80,15 +96,14 @@
                     konum_lng: globalLng
                 };
 
-                // Kayıt Denemesi
-                const { error } = await _client.from('arsa_kayitlari').insert([veri]);
+                var response = await _client.from('arsa_kayitlari').insert([veri]);
 
-                if (error) {
-                    alert("Supabase Hatası: " + error.message);
+                if (response.error) {
+                    alert("Supabase Hatası: " + response.error.message);
                     btn.innerText = "TEKRAR DENE";
                     btn.disabled = false;
                 } else {
-                    alert("Kayıt Başarılı! Arasbey Gayrimenkul buluta işlendi. 🚀");
+                    alert("Arasbey Gayrimenkul: Kayıt Başarılı! 🚀");
                     location.reload();
                 }
             } catch (err) {
