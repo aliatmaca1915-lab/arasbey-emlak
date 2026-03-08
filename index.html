@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arasbey Gayrimenkul</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f0f2f5; }
+        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; background: #28a745; color: white; border: none; border-radius: 8px; font-weight: bold; margin-top: 10px; }
+        .loc-btn { background: #007bff; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Arsa Kayıt Sistemi</h2>
+        <select id="ilce">
+            <option value="Etimesgut">Etimesgut</option>
+            <option value="Sincan">Sincan</option>
+            <option value="Çankaya">Çankaya</option>
+        </select>
+        <input type="text" id="mahalle" placeholder="Mahalle">
+        <input type="number" id="ada" placeholder="Ada No">
+        <input type="number" id="parsel" placeholder="Parsel No">
+        <input type="number" id="m2" placeholder="Metrekare (m2)">
+        
+        <button class="loc-btn" onclick="konumAl()">📍 Konumu İşle</button>
+        <input type="file" id="foto" accept="image/*" capture="camera">
+        <button onclick="kaydet()">BULUTA KAYDET</button>
+    </div>
+
+    <script>
+        const supabase = supabase.createClient('SENIN_URL', 'SENIN_ANON_KEY');
+        let coords = { lat: null, lng: null };
+
+        function konumAl() {
+            navigator.geolocation.getCurrentPosition(p => {
+                coords.lat = p.coords.latitude;
+                coords.lng = p.coords.longitude;
+                alert("Konum Alındı!");
+            });
+        }
+
+        async function kaydet() {
+            const { data, error } = await supabase.from('arsa_kayitlari').insert([{
+                ilce: document.getElementById('ilce').value,
+                mahalle: document.getElementById('mahalle').value,
+                ada_no: document.getElementById('ada').value,
+                parsel_no: document.getElementById('parsel').value,
+                m2: document.getElementById('m2').value,
+                konum_lat: coords.lat,
+                konum_lng: coords.lng
+            }]);
+            if (error) alert("Hata: " + error.message);
+            else alert("Başarıyla Kaydedildi!");
+        }
+    </script>
+</body>
+</html>
