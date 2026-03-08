@@ -12,8 +12,8 @@
 
     <style>
         :root {
-            --primary: #0d291e; /* Ultra Koyu Kurumsal Yeşil */
-            --accent: #d4af37;  /* Gerçek Altın Sarısı */
+            --primary: #0d291e; 
+            --accent: #d4af37;  
             --bg: #f8f9fa;
             --text: #2c3e50;
             --card-shadow: 0 10px 30px rgba(0,0,0,0.05);
@@ -53,8 +53,7 @@
 
         /* İnputlar */
         input.form-input { width: 100%; padding: 16px; border: 1.5px solid #eee; border-radius: 12px; box-sizing: border-box; font-size: 15px; margin-bottom: 15px; background: #fafbfc; transition: 0.3s; color: var(--primary); font-weight: 600; }
-        input.form-input:focus { border-color: var(--primary); outline: none; background: white; }
-        input.form-input:read-only { background: #f0f4f8; border-color: #e1e8ed; color: #555; }
+        input.form-input:focus { border-color: var(--primary); outline: none; background: white; box-shadow: 0 0 0 3px rgba(13, 41, 30, 0.1); }
         .row { display: flex; gap: 15px; }
         
         /* Ana Buton */
@@ -110,11 +109,11 @@
         <div class="form-card">
             <div class="card-header">📄 Resmi Tapu Bilgileri</div>
             
-            <span style="font-size:10px; color:#888; font-weight:bold; margin-bottom:5px; display:block;">İl / İlçe (Otomatik Çekilir)</span>
-            <input type="text" id="ilce" class="form-input" placeholder="Haritadan seçilince dolar..." readonly>
+            <span style="font-size:10px; color:#888; font-weight:bold; margin-bottom:5px; display:block;">İl / İlçe (Otomatik gelir, elle düzeltebilirsiniz)</span>
+            <input type="text" id="ilce" class="form-input" placeholder="Örn: Ankara / Etimesgut">
             
-            <span style="font-size:10px; color:#888; font-weight:bold; margin-bottom:5px; display:block;">Mahalle (Otomatik Çekilir)</span>
-            <input type="text" id="mahalle" class="form-input" placeholder="Haritadan seçilince dolar..." readonly>
+            <span style="font-size:10px; color:#888; font-weight:bold; margin-bottom:5px; display:block;">Mahalle (Otomatik gelir, elle düzeltebilirsiniz)</span>
+            <input type="text" id="mahalle" class="form-input" placeholder="Mahalle Adı">
             
             <div class="row">
                 <input type="number" id="ada" class="form-input" placeholder="Ada No">
@@ -145,7 +144,6 @@
         let map, marker, searchBox, geocoder;
         let cLat = 39.94, cLng = 32.66; // Ankara
 
-        // Sekme Geçişi ve Harita Yenileme (Görünmez Harita Çözümü)
         function switchTab(id) {
             document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(t => t.classList.remove('active'));
@@ -153,7 +151,6 @@
             
             if(id === 'tab-yeni') {
                 document.getElementById('nav-yeni').classList.add('active');
-                // Haritayı zorla yeniden boyutlandır ki gri ekran vermesin
                 if(map) {
                     setTimeout(() => {
                         google.maps.event.trigger(map, 'resize');
@@ -169,14 +166,13 @@
             portfoyGetir();
         }
 
-        // Harita, Arama ve Geocoder Başlatma
         function initMap() {
             geocoder = new google.maps.Geocoder();
             map = new google.maps.Map(document.getElementById("map-picker"), {
                 center: { lat: cLat, lng: cLng },
                 zoom: 14,
                 mapTypeId: 'hybrid',
-                disableDefaultUI: true, // Sadece temiz harita
+                disableDefaultUI: true,
                 zoomControl: true
             });
 
@@ -187,7 +183,6 @@
                 icon: { path: google.maps.SymbolPath.CIRCLE, scale: 11, fillColor: "#d4af37", fillOpacity: 1, strokeWeight: 3, strokeColor: "#0d291e" }
             });
 
-            // Arama Kutusu Bağlantısı
             const input = document.getElementById("pac-input");
             searchBox = new google.maps.places.SearchBox(input);
 
@@ -205,22 +200,19 @@
             map.addListener("click", (e) => placeMarker(e.latLng));
             marker.addListener("dragend", (e) => placeMarker(e.latLng));
             
-            // İlk açılışta adresi çek
             adresCek(cLat, cLng);
         }
 
-        // İşaretçi Yerleştirme ve Ters Geocoding (Otomatik Adres)
         function placeMarker(loc) {
             marker.setPosition(loc);
             cLat = loc.lat();
             cLng = loc.lng();
             document.getElementById('coord-info').innerText = `${cLat.toFixed(5)}, ${cLng.toFixed(5)}`;
             
-            // Uyduya bağlan ve adresi çöz
             adresCek(cLat, cLng);
         }
 
-        // OTOMATİK İL/İLÇE/MAHALLE BULMA SİSTEMİ
+        // OTOMATİK İL/İLÇE/MAHALLE BULMA SİSTEMİ (ARTIK DÜZENLENEBİLİR)
         function adresCek(lat, lng) {
             document.getElementById('ilce').value = "Uydu Taranıyor...";
             document.getElementById('mahalle').value = "Uydu Taranıyor...";
@@ -235,8 +227,8 @@
                         if (comp.types.includes("sublocality") || comp.types.includes("neighborhood") || comp.types.includes("route")) mahalle = comp.long_name;
                     });
 
-                    // İnputları doldur
-                    document.getElementById('ilce').value = (il && ilce) ? `${il} / ${ilce}` : (ilce || il || "Belirtilmedi");
+                    // İnputları otomatik doldurur, ancak readonly MANTIKLARI KALDIRILDI. Sen elle silebilir/ekleyebilirsin.
+                    document.getElementById('ilce').value = (il && ilce) ? `${ilce} / ${il}` : (ilce || il || "Belirtilmedi");
                     document.getElementById('mahalle').value = mahalle || "Mahalle Bulunamadı";
                 } else {
                     document.getElementById('ilce').value = "Adres Çözülemedi";
@@ -245,7 +237,6 @@
             });
         }
 
-        // Kaydetme İşlemi
         async function sistemeIsle() {
             const btn = document.getElementById('saveBtn');
             const file = document.getElementById('foto').files[0];
@@ -279,7 +270,6 @@
                     throw error;
                 }
 
-                // Form Temizle (Sadece Ada/Parsel/m2/Foto temizlenir, adres haritada kalır)
                 document.getElementById('ada').value = '';
                 document.getElementById('parsel').value = '';
                 document.getElementById('m2').value = '';
@@ -296,7 +286,6 @@
             }
         }
 
-        // VIP Arşiv Listeleme
         async function portfoyGetir() {
             const box = document.getElementById('liste-container');
             box.innerHTML = "<p style='text-align:center; color:#888; font-weight:600; padding:20px;'>Veriler hazırlanıyor...</p>";
