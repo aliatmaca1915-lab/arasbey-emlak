@@ -3,19 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Arasbey Emlak v2</title>
+    <title>Arasbey Emlak Kayıt</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: -apple-system, system-ui, sans-serif; padding: 20px; background: #f0f2f5; color: #1c1e21; }
-        .card { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #1a73e8; margin-bottom: 20px; }
-        label { font-weight: bold; display: block; margin-top: 12px; font-size: 14px; }
-        input { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ced4da; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
-        button { width: 100%; padding: 15px; background: #28a745; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; margin-top: 20px; cursor: pointer; }
-        .loc-btn { background: #6c757d; margin-top: 10px; }
-        #status { text-align: center; margin-top: 10px; font-size: 14px; color: #d93025; font-weight: bold; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 15px; background: #f8f9fa; color: #333; }
+        .card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); max-width: 500px; margin: auto; }
+        h2 { text-align: center; color: #1b5e20; margin-bottom: 20px; font-size: 22px; }
+        label { font-weight: 600; display: block; margin-top: 15px; font-size: 14px; color: #555; }
+        input { width: 100%; padding: 14px; margin-top: 6px; border: 1.5px solid #ddd; border-radius: 12px; box-sizing: border-box; font-size: 16px; transition: 0.3s; }
+        input:focus { border-color: #2e7d32; outline: none; box-shadow: 0 0 8px rgba(46,125,50,0.1); }
+        button { width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; margin-top: 20px; cursor: pointer; transition: 0.2s; }
+        .save-btn { background: #2e7d32; color: white; }
+        .loc-btn { background: #1976d2; color: white; margin-top: 10px; }
+        button:active { transform: scale(0.98); opacity: 0.9; }
+        #status { text-align: center; margin-top: 12px; font-size: 13px; font-weight: 600; min-height: 20px; }
+        .success { color: #2e7d32; }
+        .error { color: #d32f2f; }
     </style>
 </head>
 <body>
@@ -23,64 +28,65 @@
         <h2>Arasbey Gayrimenkul</h2>
         
         <label>İlçe</label>
-        <input type="text" id="ilce" placeholder="Etimesgut, Sincan vb.">
+        <input type="text" id="ilce" placeholder="Örn: Etimesgut">
 
         <label>Mahalle</label>
-        <input type="text" id="mahalle" placeholder="Mahalle adı girin">
+        <input type="text" id="mahalle" placeholder="Örn: 30 Ağustos">
 
         <label>Ada No</label>
-        <input type="number" id="ada" placeholder="Ada">
+        <input type="number" id="ada" placeholder="000">
 
         <label>Parsel No</label>
-        <input type="number" id="parsel" placeholder="Parsel">
+        <input type="number" id="parsel" placeholder="000">
 
         <label>Metrekare (m²)</label>
-        <input type="number" id="m2" placeholder="Örn: 500">
+        <input type="number" step="0.01" id="m2" placeholder="0.00">
 
-        <label>Fotoğraf (Kamera veya Galeri)</label>
-        <input type="file" id="foto" accept="image/*"> <button type="button" class="loc-btn" onclick="konumBul()">📍 Konumu İşle</button>
+        <label>Fotoğraf (Kamera & Galeri)</label>
+        <input type="file" id="foto" accept="image/*">
+
+        <button type="button" class="loc-btn" onclick="konumAl()">📍 Konumu İşle</button>
         <div id="status"></div>
         
-        <button type="button" onclick="bulutaKaydet()">BULUTA KAYDET</button>
+        <button type="button" class="save-btn" id="saveBtn" onclick="veriyiKaydet()">BULUTA KAYDET</button>
     </div>
 
     <script>
-        // Senin gerçek Supabase bilgilerini buraya işledim
+        // Supabase Bağlantısı
         const supabaseUrl = 'https://khzbzwmibqstspoknsxu.supabase.co'; 
-        const supabaseKey = 'BURAYA_ANON_KEY_YAPISTIR'; // image_ba6e67.png'deki o uzun eyJ... kodunu buraya tırnak içine yapıştır.
-        const _client = supabase.createClient(supabaseUrl, supabaseKey);
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtoemJ6d21pYnFzdHNwb2tuc3h1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4NzQ4NzIsImV4cCI6MjA4ODQ1MDg3Mn0.g7DwZ9xMag_vYP25ZGo-41ZCHUgit4x-mDaEna9rMwo'; 
+        const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
         let lat = null, lng = null;
 
-        function konumBul() {
-            const status = document.getElementById('status');
-            status.innerText = "Konum aranıyor...";
+        function konumAl() {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = "";
+            statusDiv.innerText = "GPS aranıyor...";
             
-            if (!navigator.geolocation) {
-                status.innerText = "Tarayıcı konumu desteklemiyor.";
-                return;
-            }
-
             navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    lat = pos.coords.latitude;
-                    lng = pos.coords.longitude;
-                    status.style.color = "#28a745";
-                    status.innerText = "✅ Konum Başarıyla Alındı";
+                (p) => {
+                    lat = p.coords.latitude;
+                    lng = p.coords.longitude;
+                    statusDiv.className = "success";
+                    statusDiv.innerText = "✅ Konum Başarıyla İşlendi";
                 },
-                (err) => {
-                    status.innerText = "Hata: Lütfen iPhone ayarlarından Safari konum iznini açın.";
+                (e) => {
+                    statusDiv.className = "error";
+                    statusDiv.innerText = "❌ Hata: Konum izni verilmedi.";
                 },
                 { enableHighAccuracy: true }
             );
         }
 
-        async function bulutaKaydet() {
-            const btn = event.target;
-            btn.innerText = "Kaydediliyor...";
+        async function veriyiKaydet() {
+            const btn = document.getElementById('saveBtn');
+            const statusDiv = document.getElementById('status');
+            
             btn.disabled = true;
+            btn.innerText = "Kaydediliyor...";
 
-            const veri = {
+            const formData = {
                 ilce: document.getElementById('ilce').value,
                 mahalle: document.getElementById('mahalle').value,
                 ada_no: parseInt(document.getElementById('ada').value),
@@ -90,14 +96,15 @@
                 konum_lng: lng
             };
 
-            const { error } = await _client.from('arsa_kayitlari').insert([veri]);
+            const { error } = await _supabase.from('arsa_kayitlari').insert([formData]);
 
             if (error) {
-                alert("Hata Oluştu: " + error.message);
-                btn.innerText = "TEKRAR DENE";
+                statusDiv.className = "error";
+                statusDiv.innerText = "Hata: " + error.message;
                 btn.disabled = false;
+                btn.innerText = "TEKRAR DENE";
             } else {
-                alert("Arasbey Gayrimenkul: Kayıt Başarılı!");
+                alert("Kayıt Başarıyla Supabase'e Gönderildi!");
                 location.reload(); 
             }
         }
