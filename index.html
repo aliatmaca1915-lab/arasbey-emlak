@@ -156,7 +156,7 @@
             document.getElementById('coord-info').innerText = `Seçili Koordinat: ${cLat.toFixed(5)}, ${cLng.toFixed(5)}`;
         }
 
-        // Kaydetme İşlemi
+        // Kaydetme İşlemi (HATA DEDEKTÖRLÜ)
         async function sistemeIsle() {
             const btn = document.getElementById('saveBtn');
             const file = document.getElementById('foto').files[0];
@@ -168,23 +168,32 @@
                 if (file) {
                     const fName = `${Date.now()}-${file.name.replace(/\s/g, '_')}`;
                     const { data: uData, error: uErr } = await _client.storage.from('arsalar').upload(fName, file);
-                    if (uErr) throw uErr;
+                    if (uErr) {
+                        alert("FOTOĞRAF YÜKLEME HATASI:\n" + uErr.message);
+                        throw uErr;
+                    }
                     img = `${S_URL}/storage/v1/object/public/arsalar/${fName}`;
                 }
 
+                // Verileri zorla doğru tipe çeviriyoruz (Çökmeyi engeller)
                 const payload = {
-                    ilce: document.getElementById('ilce').value || "Belirtilmedi",
-                    mahalle: document.getElementById('mahalle').value || "Belirtilmedi",
+                    ilce: String(document.getElementById('ilce').value || "Belirtilmedi"),
+                    mahalle: String(document.getElementById('mahalle').value || "Belirtilmedi"),
                     ada_no: parseInt(document.getElementById('ada').value) || 0,
                     parsel_no: parseInt(document.getElementById('parsel').value) || 0,
                     m2: parseFloat(document.getElementById('m2').value) || 0,
-                    konum_lat: cLat,
-                    konum_lng: cLng,
+                    konum_lat: parseFloat(cLat),
+                    konum_lng: parseFloat(cLng),
                     fotograf_url: img
                 };
 
                 const { error } = await _client.from('arsa_kayitlari').insert([payload]);
-                if (error) throw error;
+                
+                // EĞER SUPABASE REDDEDERSE NEDENİNİ GÖSTER:
+                if (error) {
+                    alert("SUPABASE KAYDI REDDETTİ!\nHata Mesajı: " + error.message + "\nDetay: " + error.details);
+                    throw error;
+                }
 
                 // Formu Temizle
                 document.getElementById('ilce').value = '';
@@ -201,23 +210,22 @@
                 arhiveGec();
 
             } catch (err) {
-                alert("Hata: " + err.message);
                 btn.disabled = false; 
                 btn.innerText = "TEKRAR DENE";
             }
         }
 
-        // Arşiv Listeleme (HATAYA KARŞI KORUMALI)
+        // Arşiv Listeleme (SIRALAMA ÇÖKMESİ GİDERİLDİ)
         async function portfoyGetir() {
             const box = document.getElementById('liste-container');
-            box.innerHTML = "<p style='text-align:center; color:#888; font-size:13px;'>Veriler hazırlanıyor...</p>";
+            box.innerHTML = "<p style='text-align:center; color:#888; font-size:13px;'>Veriler çekiliyor...</p>";
             
             try {
-                // created_at yerine garanti olan 'id' ile sıralıyoruz ki hata vermesin
-                const { data, error } = await _client.from('arsa_kayitlari').select('*').order('id', { ascending: false });
+                // order() metodunu tamamen kaldırdık ki sütun hatası vermesin. Tüm veriyi çekip JavaScript ile sıralayacağız.
+                const { data, error } = await _client.from('arsa_kayitlari').select('*');
 
                 if (error) { 
-                    box.innerHTML = "<p style='color:red; text-align:center;'>Veritabanı Hatası: " + error.message + "</p>"; 
+                    box.innerHTML = "<p style='color:red; text-align:center; font-weight:bold;'>Veritabanı Hatası: " + error.message + "</p>"; 
                     return; 
                 }
                 
@@ -226,10 +234,12 @@
                     return; 
                 }
                 
-                box.innerHTML = data.map(i => {
-                    // Eski boş kayıtların sistemi çökertmesini engelliyoruz (Görünmez hatanın çözümü)
-                    const ilceTxt = i.ilce ? i.ilce.toUpperCase() : "İLÇE BELİRTİLMEDİ";
-                    const mahalleTxt = i.mahalle ? i.mahalle.toUpperCase() : "MAHALLE BELİRTİLMEDİ";
+                // JavaScript ile listeyi tersine çeviriyoruz (En yeniler üstte olsun)
+                const guncelListe = data.reverse();
+                
+                box.innerHTML = guncelListe.map(i => {
+                    const ilceTxt = String(i.ilce || "Belirtilmedi").toUpperCase();
+                    const mahalleTxt = String(i.mahalle || "Belirtilmedi").toUpperCase();
                     
                     return `
                     <div class="record-card">
@@ -245,7 +255,7 @@
                             <a href="https://parselsorgu.tkgm.gov.tr/#ara/cografi/${i.konum_lat}/${i.konum_lng}" target="_blank" class="btn-action btn-tkgm-large">
                                 🏛️ TKGM PARSEL SORGULA
                             </a>
-                            <a href="https://maps.google.com/?q=${i.konum_lat},${i.konum_lng}" target="_blank" class="btn-action btn-maps">
+                            <a href="https://www.google.com/maps/search/?api=1&query=${i.konum_lat},${i.konum_lng}" target="_blank" class="btn-action btn-maps">
                                 🗺️ Google Haritalar'da Yol Tarifi Al
                             </a>
                         </div>
@@ -253,7 +263,6 @@
                     `;
                 }).join('');
             } catch (e) {
-                // Eğer kod içinde başka bir çökme olursa ekrana yazdırsın
                 box.innerHTML = "<p style='color:red; text-align:center;'>Sistem Hatası: " + e.message + "</p>";
             }
         }
