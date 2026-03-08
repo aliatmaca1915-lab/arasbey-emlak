@@ -12,31 +12,27 @@
 
     <style>
         :root {
-            --primary: #113224; /* Koyu Yeşil */
-            --accent: #c4a165;  /* Altın */
+            --primary: #113224; 
+            --accent: #c4a165;  
             --bg: #f5f7f6;
             --text: #333;
         }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; color: var(--text); }
         
-        /* Üst Başlık */
         .header { background: white; padding: 20px 15px 15px; text-align: center; border-bottom: 1px solid #eaeaea; position: sticky; top: 0; z-index: 100; }
         .header h1 { margin: 0; font-size: 20px; color: var(--primary); font-weight: 800; letter-spacing: -0.5px; }
         .header p { margin: 3px 0 0; font-size: 11px; color: var(--accent); font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; }
 
-        /* Alt Menü */
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; box-shadow: 0 -4px 20px rgba(0,0,0,0.06); z-index: 1000; padding-bottom: env(safe-area-inset-bottom); }
         .nav-item { flex: 1; text-align: center; padding: 12px 0; color: #a0a0a0; font-size: 11px; font-weight: 700; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 0.5px; }
         .nav-item.active { color: var(--primary); }
         .nav-icon { font-size: 22px; display: block; margin-bottom: 4px; filter: grayscale(100%) opacity(50%); transition: 0.3s; }
         .nav-item.active .nav-icon { filter: none; }
 
-        /* İçerik */
         .content { display: none; padding: 15px; max-width: 500px; margin: auto; }
         .content.active { display: block; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Form Elemanları */
         .form-card { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 15px; }
         .form-label { font-size: 11px; font-weight: 800; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; display: block; }
         input { width: 100%; padding: 16px; border: 1.5px solid #f0f0f0; border-radius: 12px; box-sizing: border-box; font-size: 15px; margin-bottom: 15px; background: #fafafa; transition: 0.3s; color: var(--text); font-weight: 500; }
@@ -46,11 +42,9 @@
         #map-picker { height: 250px; border-radius: 12px; border: 1px solid #eaeaea; margin-bottom: 5px; }
         .coord-text { text-align: center; font-size: 11px; color: var(--accent); font-weight: 600; margin-bottom: 15px; }
 
-        /* Ana Kaydet Butonu */
         .btn-primary { background: var(--primary); color: white; border: none; padding: 18px; width: 100%; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 8px 20px rgba(17, 50, 36, 0.2); }
         .btn-primary:active { transform: scale(0.98); }
         
-        /* Arşiv Kartları ve Aksiyon Butonları */
         .record-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.04); margin-bottom: 20px; border: 1px solid #f0f0f0; }
         .record-img { width: 100%; height: 200px; object-fit: cover; }
         .record-body { padding: 18px; }
@@ -80,7 +74,7 @@
 
     <div id="tab-yeni" class="content active">
         <div class="form-card">
-            <label class="form-label">Arazı Konumu</label>
+            <label class="form-label">Arazi Konumu</label>
             <div id="map-picker"></div>
             <div class="coord-text" id="coord-info">Haritaya tıklayarak işaretleyin</div>
         </div>
@@ -111,6 +105,7 @@
     </div>
 
     <script>
+        // Supabase Bağlantısı
         const S_URL = 'https://khzbzwmibqstspoknsxu.supabase.co';
         const S_KEY = 'sb_publishable_M8VSs5G9EGjIJgNF2Bn14w_vGi95O0I';
         const _client = supabase.createClient(S_URL, S_KEY);
@@ -118,7 +113,7 @@
         let map, marker;
         let cLat = 39.94, cLng = 32.66; 
 
-        // Sekme Değiştirme ve Buton Renk Ayarı
+        // Sekme Değiştirme
         function switchTab(id) {
             document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(t => t.classList.remove('active'));
@@ -128,7 +123,6 @@
             if(id === 'tab-liste') document.getElementById('nav-liste').classList.add('active');
         }
 
-        // Arşive Geçiş Butonu
         function arhiveGec() {
             switchTab('tab-liste');
             portfoyGetir();
@@ -162,7 +156,7 @@
             document.getElementById('coord-info').innerText = `Seçili Koordinat: ${cLat.toFixed(5)}, ${cLng.toFixed(5)}`;
         }
 
-        // Veri Kaydetme ve Otomatik Arşive Yönlendirme
+        // Kaydetme İşlemi
         async function sistemeIsle() {
             const btn = document.getElementById('saveBtn');
             const file = document.getElementById('foto').files[0];
@@ -203,7 +197,7 @@
                 btn.disabled = false; 
                 btn.innerText = "SİSTEME KAYDET";
 
-                // Doğrudan Arşiv sekmesine geç ve listeyi yenile (Sayfa yenilenmez!)
+                // Arşive Geç
                 arhiveGec();
 
             } catch (err) {
@@ -213,36 +207,55 @@
             }
         }
 
-        // Arşivi Listeleme ve Büyük TKGM Butonları
+        // Arşiv Listeleme (HATAYA KARŞI KORUMALI)
         async function portfoyGetir() {
             const box = document.getElementById('liste-container');
             box.innerHTML = "<p style='text-align:center; color:#888; font-size:13px;'>Veriler hazırlanıyor...</p>";
             
-            const { data, error } = await _client.from('arsa_kayitlari').select('*').order('created_at', { ascending: false });
+            try {
+                // created_at yerine garanti olan 'id' ile sıralıyoruz ki hata vermesin
+                const { data, error } = await _client.from('arsa_kayitlari').select('*').order('id', { ascending: false });
 
-            if (error) { box.innerHTML = "Sistem Hatası."; return; }
-            if (data.length === 0) { box.innerHTML = "<p style='text-align:center; color:#888;'>Henüz portföy eklenmedi.</p>"; return; }
-            
-            box.innerHTML = data.map(i => `
-                <div class="record-card">
-                    ${i.fotograf_url ? `<img src="${i.fotograf_url}" class="record-img">` : ''}
-                    <div class="record-body">
-                        <h3 class="record-title">${i.ilce.toUpperCase()} / ${i.mahalle.toUpperCase()}</h3>
-                        <div class="record-info">
-                            <span>Ada: <b>${i.ada_no}</b></span> • 
-                            <span>Parsel: <b>${i.parsel_no}</b></span> • 
-                            <span><b>${i.m2}</b> m²</span>
+                if (error) { 
+                    box.innerHTML = "<p style='color:red; text-align:center;'>Veritabanı Hatası: " + error.message + "</p>"; 
+                    return; 
+                }
+                
+                if (!data || data.length === 0) { 
+                    box.innerHTML = "<p style='text-align:center; color:#888;'>Henüz portföy eklenmedi.</p>"; 
+                    return; 
+                }
+                
+                box.innerHTML = data.map(i => {
+                    // Eski boş kayıtların sistemi çökertmesini engelliyoruz (Görünmez hatanın çözümü)
+                    const ilceTxt = i.ilce ? i.ilce.toUpperCase() : "İLÇE BELİRTİLMEDİ";
+                    const mahalleTxt = i.mahalle ? i.mahalle.toUpperCase() : "MAHALLE BELİRTİLMEDİ";
+                    
+                    return `
+                    <div class="record-card">
+                        ${i.fotograf_url ? `<img src="${i.fotograf_url}" class="record-img">` : ''}
+                        <div class="record-body">
+                            <h3 class="record-title">${ilceTxt} / ${mahalleTxt}</h3>
+                            <div class="record-info">
+                                <span>Ada: <b>${i.ada_no || 0}</b></span> • 
+                                <span>Parsel: <b>${i.parsel_no || 0}</b></span> • 
+                                <span><b>${i.m2 || 0}</b> m²</span>
+                            </div>
+                            
+                            <a href="https://parselsorgu.tkgm.gov.tr/#ara/cografi/${i.konum_lat}/${i.konum_lng}" target="_blank" class="btn-action btn-tkgm-large">
+                                🏛️ TKGM PARSEL SORGULA
+                            </a>
+                            <a href="https://maps.google.com/?q=${i.konum_lat},${i.konum_lng}" target="_blank" class="btn-action btn-maps">
+                                🗺️ Google Haritalar'da Yol Tarifi Al
+                            </a>
                         </div>
-                        
-                        <a href="https://parselsorgu.tkgm.gov.tr/#ara/cografi/${i.konum_lat}/${i.konum_lng}" target="_blank" class="btn-action btn-tkgm-large">
-                            🏛️ TKGM PARSEL SORGULA
-                        </a>
-                        <a href="https://www.google.com/maps/dir/?api=1&destination=${i.konum_lat},${i.konum_lng}" target="_blank" class="btn-action btn-maps">
-                            🗺️ Google Haritalar'da Yol Tarifi Al
-                        </a>
                     </div>
-                </div>
-            `).join('');
+                    `;
+                }).join('');
+            } catch (e) {
+                // Eğer kod içinde başka bir çökme olursa ekrana yazdırsın
+                box.innerHTML = "<p style='color:red; text-align:center;'>Sistem Hatası: " + e.message + "</p>";
+            }
         }
     </script>
 </body>
