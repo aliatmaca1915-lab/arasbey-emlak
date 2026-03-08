@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Arasbey Emlak v8</title>
+    <title>Arasbey Emlak v9</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -18,12 +18,13 @@
         .save-btn { background: #2e7d32; color: white; }
         .loc-btn { background: #1976d2; color: white; margin-top: 10px; }
         #status { text-align: center; margin-top: 10px; font-size: 13px; font-weight: bold; }
+        #conn-status { text-align: center; font-size: 10px; color: #4caf50; font-weight: bold; margin-top: 5px; }
     </style>
 </head>
 <body>
     <div class="card">
         <h2>Arasbey Gayrimenkul</h2>
-        <div class="version">Sistem Sürümü: v8.0 (Kesin Çözüm)</div>
+        <div class="version">Sistem Sürümü: v9.0 (Hızlı Başlatma)</div>
         
         <label>İlçe</label>
         <input type="text" id="ilce" placeholder="Etimesgut, Sincan vb.">
@@ -39,25 +40,25 @@
         <button type="button" class="loc-btn" onclick="getGPS()">📍 Konumu İşle</button>
         <div id="status"></div>
         <button type="button" class="save-btn" id="saveBtn" onclick="kesinKaydet()">BULUTA KAYDET</button>
+        <div id="conn-status">Bağlantı Kontrol Ediliyor...</div>
     </div>
 
     <script>
-        // Değişkenleri VAR ile tanımlayarak "Initialization" hatasını tarihe gömüyoruz
+        // Bilgilerini buraya sabitliyoruz
+        var URL = 'https://khzbzwmibqstspoknsxu.supabase.co';
+        var KEY = 'sb_publishable_M8VSs5G9EGjIJgNF2Bn14w_vGi95O0I';
         var _client;
         var globalLat = 0;
         var globalLng = 0;
-        var URL = 'https://khzbzwmibqstspoknsxu.supabase.co';
-        var KEY = 'sb_publishable_M8VSs5G9EGjIJgNF2Bn14w_vGi95O0I';
 
-        // Sayfa açılır açılmaz bağlantıyı kur
-        window.onload = function() {
-            try {
-                _client = supabase.createClient(URL, KEY);
-                console.log("Bağlantı kuruldu.");
-            } catch (e) {
-                alert("Bağlantı Hatası: " + e.message);
-            }
-        };
+        // Kütüphane yüklenir yüklenmez (beklemeden) başlat
+        try {
+            _client = supabase.createClient(URL, KEY);
+            document.getElementById('conn-status').innerText = "● Sistem Hazır ve Bağlı";
+        } catch (e) {
+            document.getElementById('conn-status').innerText = "○ Bağlantı Kurulamadı!";
+            document.getElementById('conn-status').style.color = "red";
+        }
 
         function getGPS() {
             var st = document.getElementById('status');
@@ -68,22 +69,20 @@
                 st.innerText = "✅ Konum Başarıyla Alındı";
                 st.style.color = "green";
             }, function(e) {
-                st.innerText = "❌ Konum Alınamadı!";
+                st.innerText = "❌ Konum İzni Gerekli!";
                 st.style.color = "red";
             }, { enableHighAccuracy: true });
         }
 
         async function kesinKaydet() {
             var btn = document.getElementById('saveBtn');
-            btn.innerText = "Kaydediliyor...";
-            btn.disabled = true;
-
             if (!_client) {
-                alert("Sistem henüz hazır değil, lütfen 2 saniye bekleyip tekrar basın.");
-                btn.disabled = false;
-                btn.innerText = "BULUTA KAYDET";
+                alert("Hata: Veritabanı bağlantısı kurulamadı. Lütfen sayfayı yenileyin.");
                 return;
             }
+
+            btn.innerText = "Kaydediliyor...";
+            btn.disabled = true;
 
             try {
                 var veri = {
@@ -99,11 +98,11 @@
                 var response = await _client.from('arsa_kayitlari').insert([veri]);
 
                 if (response.error) {
-                    alert("Supabase Hatası: " + response.error.message);
+                    alert("Kayıt Hatası: " + response.error.message);
                     btn.innerText = "TEKRAR DENE";
                     btn.disabled = false;
                 } else {
-                    alert("Arasbey Gayrimenkul: Kayıt Başarılı! 🚀");
+                    alert("Tebrikler Ali! Arasbey Gayrimenkul verisi başarıyla kaydedildi. 🚀");
                     location.reload();
                 }
             } catch (err) {
