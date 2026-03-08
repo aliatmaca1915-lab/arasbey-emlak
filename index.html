@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Arasbey Emlak v9</title>
+    <title>Arasbey Emlak v10</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body { font-family: -apple-system, sans-serif; padding: 15px; background: #f0f2f5; }
         .card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 450px; margin: auto; }
@@ -15,16 +14,16 @@
         label { font-weight: bold; display: block; margin-top: 15px; font-size: 14px; }
         input { width: 100%; padding: 14px; margin-top: 6px; border: 1px solid #ddd; border-radius: 12px; box-sizing: border-box; font-size: 16px; }
         button { width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; margin-top: 20px; cursor: pointer; }
-        .save-btn { background: #2e7d32; color: white; }
+        .save-btn { background: #2e7d32; color: white; opacity: 0.5; }
         .loc-btn { background: #1976d2; color: white; margin-top: 10px; }
         #status { text-align: center; margin-top: 10px; font-size: 13px; font-weight: bold; }
-        #conn-status { text-align: center; font-size: 10px; color: #4caf50; font-weight: bold; margin-top: 5px; }
+        #conn-status { text-align: center; font-size: 11px; color: #f44336; font-weight: bold; margin-top: 10px; padding: 5px; border-radius: 5px; background: #ffebee; }
     </style>
 </head>
 <body>
     <div class="card">
         <h2>Arasbey Gayrimenkul</h2>
-        <div class="version">Sistem Sürümü: v9.0 (Hızlı Başlatma)</div>
+        <div class="version">Sistem Sürümü: v10.0 (Garanti Bağlantı)</div>
         
         <label>İlçe</label>
         <input type="text" id="ilce" placeholder="Etimesgut, Sincan vb.">
@@ -39,26 +38,38 @@
 
         <button type="button" class="loc-btn" onclick="getGPS()">📍 Konumu İşle</button>
         <div id="status"></div>
-        <button type="button" class="save-btn" id="saveBtn" onclick="kesinKaydet()">BULUTA KAYDET</button>
-        <div id="conn-status">Bağlantı Kontrol Ediliyor...</div>
+        <button type="button" class="save-btn" id="saveBtn" onclick="kesinKaydet()" disabled>BAĞLANTI BEKLENİYOR...</button>
+        <div id="conn-status">Bulut kütüphanesi yükleniyor, lütfen bekleyin...</div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <script>
-        // Bilgilerini buraya sabitliyoruz
         var URL = 'https://khzbzwmibqstspoknsxu.supabase.co';
         var KEY = 'sb_publishable_M8VSs5G9EGjIJgNF2Bn14w_vGi95O0I';
         var _client;
         var globalLat = 0;
         var globalLng = 0;
 
-        // Kütüphane yüklenir yüklenmez (beklemeden) başlat
-        try {
-            _client = supabase.createClient(URL, KEY);
-            document.getElementById('conn-status').innerText = "● Sistem Hazır ve Bağlı";
-        } catch (e) {
-            document.getElementById('conn-status').innerText = "○ Bağlantı Kurulamadı!";
-            document.getElementById('conn-status').style.color = "red";
-        }
+        // Kütüphanenin yüklenip yüklenmediğini kontrol eden döngü
+        var checkInterval = setInterval(function() {
+            if (typeof supabase !== 'undefined') {
+                try {
+                    _client = supabase.createClient(URL, KEY);
+                    var cs = document.getElementById('conn-status');
+                    var sb = document.getElementById('saveBtn');
+                    cs.innerText = "✅ SİSTEM HAZIR: Bağlantı Başarılı";
+                    cs.style.background = "#e8f5e9";
+                    cs.style.color = "#2e7d32";
+                    sb.innerText = "BULUTA KAYDET";
+                    sb.style.opacity = "1";
+                    sb.disabled = false;
+                    clearInterval(checkInterval);
+                } catch (e) {
+                    console.error("Bağlantı hatası:", e);
+                }
+            }
+        }, 500);
 
         function getGPS() {
             var st = document.getElementById('status');
@@ -66,22 +77,16 @@
             navigator.geolocation.getCurrentPosition(function(p) {
                 globalLat = p.coords.latitude;
                 globalLng = p.coords.longitude;
-                st.innerText = "✅ Konum Başarıyla Alındı";
+                st.innerText = "✅ Konum Alındı";
                 st.style.color = "green";
             }, function(e) {
                 st.innerText = "❌ Konum İzni Gerekli!";
-                st.style.color = "red";
             }, { enableHighAccuracy: true });
         }
 
         async function kesinKaydet() {
             var btn = document.getElementById('saveBtn');
-            if (!_client) {
-                alert("Hata: Veritabanı bağlantısı kurulamadı. Lütfen sayfayı yenileyin.");
-                return;
-            }
-
-            btn.innerText = "Kaydediliyor...";
+            btn.innerText = "Veri Gönderiliyor...";
             btn.disabled = true;
 
             try {
@@ -102,7 +107,7 @@
                     btn.innerText = "TEKRAR DENE";
                     btn.disabled = false;
                 } else {
-                    alert("Tebrikler Ali! Arasbey Gayrimenkul verisi başarıyla kaydedildi. 🚀");
+                    alert("Başarılı! Arasbey Gayrimenkul portföyüne eklendi. 🚀");
                     location.reload();
                 }
             } catch (err) {
