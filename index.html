@@ -18,15 +18,14 @@
             --text: #2c3e50;
             --card-shadow: 0 10px 30px rgba(0,0,0,0.05);
         }
-        /* Body'ye padding-top ekledik ki sabit başlığın altında içerik kaybolmasın */
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); margin: 0; padding-top: 90px; padding-bottom: 90px; color: var(--text); }
         
-        /* VIP Üst Başlık (TAMAMEN SABİTLENDİ) */
+        /* Sabit Başlık */
         .header { background: #fff; padding: 25px 15px 15px; text-align: center; border-bottom: 2px solid #f0f0f0; position: fixed; top: 0; left: 0; width: 100%; box-sizing: border-box; z-index: 1001; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
         .header h1 { margin: 0; font-size: 22px; color: var(--primary); font-weight: 900; letter-spacing: -0.5px; }
         .header p { margin: 5px 0 0; font-size: 10px; color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: 2px; }
 
-        /* Zarif Alt Menü */
+        /* Alt Menü */
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); display: flex; box-shadow: 0 -5px 25px rgba(0,0,0,0.05); z-index: 1000; padding-bottom: env(safe-area-inset-bottom); border-top: 1px solid #eee; }
         .nav-item { flex: 1; text-align: center; padding: 15px 0; color: #a0a0a0; font-size: 11px; font-weight: 800; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
         .nav-item.active { color: var(--primary); }
@@ -37,14 +36,12 @@
         .content.active { display: block; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Premium Form Kartları */
+        /* Form Kartları */
         .form-card { background: white; padding: 22px; border-radius: 20px; box-shadow: var(--card-shadow); margin-bottom: 20px; border: 1px solid rgba(0,0,0,0.02); }
         .card-header { font-size: 12px; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px; }
         
-        /* Harita Alanı */
         #map-picker { height: 280px; border-radius: 14px; border: 1px solid #e0e0e0; margin-bottom: 15px; background: #e9ecef; }
         
-        /* Prestijli Arama ve Koordinat Paneli */
         .map-control-panel { background: #fafbfc; border-radius: 14px; padding: 15px; border: 1px solid #eee; }
         #pac-input { width: 100%; padding: 14px; border: 1.5px solid #ddd; border-radius: 10px; font-size: 14px; font-weight: 600; color: var(--text); box-sizing: border-box; background: white; transition: 0.3s; margin-bottom: 10px; }
         #pac-input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15); }
@@ -52,20 +49,23 @@
         .coord-title { font-size: 10px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
         .coord-value { font-size: 13px; font-weight: 700; color: var(--primary); font-family: monospace; }
 
-        /* İnputlar */
         input.form-input { width: 100%; padding: 16px; border: 1.5px solid #eee; border-radius: 12px; box-sizing: border-box; font-size: 15px; margin-bottom: 15px; background: #fafbfc; transition: 0.3s; color: var(--primary); font-weight: 600; }
         input.form-input:focus { border-color: var(--primary); outline: none; background: white; box-shadow: 0 0 0 3px rgba(13, 41, 30, 0.1); }
         .row { display: flex; gap: 15px; }
         
-        /* Ana Buton */
         .btn-primary { background: linear-gradient(135deg, var(--primary), #1a4a36); color: white; border: none; padding: 20px; width: 100%; border-radius: 16px; font-size: 15px; font-weight: 800; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 10px 25px rgba(13, 41, 30, 0.25); margin-top: 10px; }
         .btn-primary:active { transform: scale(0.97); }
         
-        /* Arşiv Kartları */
+        /* Arşiv Kartları ve Düzenle Butonu */
         .record-card { background: white; border-radius: 20px; overflow: hidden; box-shadow: var(--card-shadow); margin-bottom: 25px; border: 1px solid #f0f0f0; }
         .record-img { width: 100%; height: 220px; object-fit: cover; border-bottom: 3px solid var(--accent); }
-        .record-body { padding: 20px; }
-        .record-title { font-size: 17px; font-weight: 800; color: var(--primary); margin: 0 0 12px; line-height: 1.4; }
+        .record-body { padding: 20px; position: relative; } /* Buton konumlandırması için relative */
+        
+        /* Estetik Düzenle Butonu */
+        .btn-edit { position: absolute; right: 20px; top: 20px; background: #fff; border: 1.5px solid #eaeaea; color: var(--primary); font-size: 11px; font-weight: 800; padding: 8px 12px; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 5px; text-transform: uppercase; transition: 0.2s; }
+        .btn-edit:active { background: #f0f0f0; transform: scale(0.95); }
+
+        .record-title { font-size: 17px; font-weight: 800; color: var(--primary); margin: 0 0 12px; line-height: 1.4; padding-right: 85px; /* Düzenle butonu yazının üstüne binmesin diye */ }
         .record-info { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #eee; }
         .info-box { text-align: center; }
         .info-label { display: block; font-size: 10px; color: #888; text-transform: uppercase; font-weight: 700; margin-bottom: 4px; }
@@ -74,9 +74,18 @@
         .btn-action { width: 100%; display: block; padding: 15px; border-radius: 12px; text-align: center; text-decoration: none; font-size: 12px; font-weight: 800; text-transform: uppercase; margin-bottom: 10px; box-sizing: border-box; letter-spacing: 0.5px; transition: 0.2s; }
         .btn-maps { background: #f0f4f8; color: #1a73e8; border: 1px solid #d2e3fc; }
         .btn-tkgm-large { background: rgba(212, 175, 55, 0.1); color: #9c7b3c; border: 1px solid rgba(212, 175, 55, 0.3); }
-        
-        /* Yeni WhatsApp Butonu Stili */
         .btn-whatsapp { background: #25D366; color: white; border: none; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3); margin-top: 5px; }
+
+        /* Hızlı Düzenleme Penceresi (Modal) */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .modal-box { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes scaleUp { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal-title { font-size: 16px; font-weight: 800; color: var(--primary); margin-top: 0; margin-bottom: 20px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; }
+        .modal-btn-row { display: flex; gap: 10px; margin-top: 20px; }
+        .modal-btn { flex: 1; padding: 15px; border-radius: 12px; border: none; font-weight: 800; font-size: 13px; text-transform: uppercase; cursor: pointer; }
+        .modal-btn-cancel { background: #f0f4f8; color: #555; }
+        .modal-btn-save { background: var(--primary); color: white; }
+        .modal-btn-delete { color: #d32f2f; background: transparent; border: none; font-size: 12px; font-weight: bold; width: 100%; margin-top: 15px; padding: 10px; cursor: pointer; text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -96,11 +105,9 @@
     </div>
 
     <div id="tab-yeni" class="content active">
-        
         <div class="form-card">
             <div class="card-header">🌍 Lokasyon Tespiti</div>
             <div id="map-picker"></div>
-            
             <div class="map-control-panel">
                 <input id="pac-input" type="text" placeholder="🔍 Sokak, Mahalle veya Bölge Ara...">
                 <div class="coord-badge">
@@ -112,13 +119,10 @@
 
         <div class="form-card">
             <div class="card-header">📄 Resmi Tapu Bilgileri</div>
-            
-            <span style="font-size:10px; color:#888; font-weight:bold; margin-bottom:5px; display:block;">İl / İlçe (Otomatik gelir, elle düzeltebilirsiniz)</span>
+            <span style="font-size:10px; color:#888; font-weight:bold; margin-bottom:5px; display:block;">İl / İlçe</span>
             <input type="text" id="ilce" class="form-input" placeholder="Örn: Ankara / Etimesgut">
-            
-            <span style="font-size:10px; color:#888; font-weight:bold; margin-bottom:5px; display:block;">Mahalle (Otomatik gelir, elle düzeltebilirsiniz)</span>
+            <span style="font-size:10px; color:#888; font-weight:bold; margin-bottom:5px; display:block;">Mahalle</span>
             <input type="text" id="mahalle" class="form-input" placeholder="Mahalle Adı">
-            
             <div class="row">
                 <input type="number" id="ada" class="form-input" placeholder="Ada No">
                 <input type="number" id="parsel" class="form-input" placeholder="Parsel No">
@@ -140,13 +144,50 @@
         </div>
     </div>
 
+    <div id="editModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 class="modal-title">✏️ Kaydı Güncelle</h3>
+            
+            <span style="font-size:10px; color:#888; font-weight:bold; margin-bottom:5px; display:block;">İl / İlçe</span>
+            <input type="text" id="edit-ilce" class="form-input" style="padding:12px; margin-bottom:10px;">
+            
+            <span style="font-size:10px; color:#888; font-weight:bold; margin-bottom:5px; display:block;">Mahalle</span>
+            <input type="text" id="edit-mahalle" class="form-input" style="padding:12px; margin-bottom:10px;">
+            
+            <div class="row" style="margin-bottom:10px;">
+                <div style="flex:1;">
+                    <span style="font-size:10px; color:#888; font-weight:bold; display:block;">Ada</span>
+                    <input type="number" id="edit-ada" class="form-input" style="padding:12px; margin-bottom:0;">
+                </div>
+                <div style="flex:1;">
+                    <span style="font-size:10px; color:#888; font-weight:bold; display:block;">Parsel</span>
+                    <input type="number" id="edit-parsel" class="form-input" style="padding:12px; margin-bottom:0;">
+                </div>
+            </div>
+            
+            <span style="font-size:10px; color:#888; font-weight:bold; margin-bottom:5px; display:block;">Metrekare (m²)</span>
+            <input type="number" step="0.01" id="edit-m2" class="form-input" style="padding:12px; margin-bottom:10px;">
+            
+            <div class="modal-btn-row">
+                <button class="modal-btn modal-btn-cancel" onclick="modalKapat()">İPTAL</button>
+                <button class="modal-btn modal-btn-save" id="modalSaveBtn" onclick="kaydiGuncelle()">KAYDET</button>
+            </div>
+            
+            <button class="modal-btn-delete" onclick="kaydiSil()">🗑️ Bu Kaydı Kalıcı Olarak Sil</button>
+        </div>
+    </div>
+
     <script>
         const S_URL = 'https://khzbzwmibqstspoknsxu.supabase.co';
         const S_KEY = 'sb_publishable_M8VSs5G9EGjIJgNF2Bn14w_vGi95O0I';
         const _client = supabase.createClient(S_URL, S_KEY);
 
         let map, marker, searchBox, geocoder;
-        let cLat = 39.94, cLng = 32.66; // Ankara
+        let cLat = 39.94, cLng = 32.66; 
+        
+        // Düzenleme İşlemleri İçin Küresel Değişkenler
+        let globalPortfoy = [];
+        let aktifEditId = null;
 
         function switchTab(id) {
             document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
@@ -163,8 +204,6 @@
                 }
             }
             if(id === 'tab-liste') document.getElementById('nav-liste').classList.add('active');
-            
-            // Sayfa başına kaydır
             window.scrollTo(0,0);
         }
 
@@ -225,13 +264,11 @@
             geocoder.geocode({ location: { lat: lat, lng: lng } }, (results, status) => {
                 if (status === "OK" && results[0]) {
                     let il = "", ilce = "", mahalle = "";
-                    
                     results[0].address_components.forEach(comp => {
                         if (comp.types.includes("administrative_area_level_1")) il = comp.long_name;
                         if (comp.types.includes("administrative_area_level_2") || comp.types.includes("administrative_area_level_4")) ilce = comp.long_name;
                         if (comp.types.includes("sublocality") || comp.types.includes("neighborhood") || comp.types.includes("route")) mahalle = comp.long_name;
                     });
-
                     document.getElementById('ilce').value = (il && ilce) ? `${ilce} / ${il}` : (ilce || il || "Belirtilmedi");
                     document.getElementById('mahalle').value = mahalle || "Mahalle Bulunamadı";
                 } else {
@@ -244,8 +281,7 @@
         async function sistemeIsle() {
             const btn = document.getElementById('saveBtn');
             const file = document.getElementById('foto').files[0];
-            btn.disabled = true; 
-            btn.innerText = "YÜKLENİYOR...";
+            btn.disabled = true; btn.innerText = "YÜKLENİYOR...";
 
             try {
                 let img = "";
@@ -268,25 +304,77 @@
                 };
 
                 const { error } = await _client.from('arsa_kayitlari').insert([payload]);
-                
-                if (error) {
-                    alert("Kayıt Hatası: " + error.message);
-                    throw error;
-                }
+                if (error) { alert("Kayıt Hatası: " + error.message); throw error; }
 
-                document.getElementById('ada').value = '';
-                document.getElementById('parsel').value = '';
-                document.getElementById('m2').value = '';
-                document.getElementById('foto').value = '';
+                document.getElementById('ada').value = ''; document.getElementById('parsel').value = '';
+                document.getElementById('m2').value = ''; document.getElementById('foto').value = '';
                 document.getElementById('pac-input').value = '';
                 
-                btn.disabled = false; 
-                btn.innerText = "PORTFÖYE KAYDET";
+                btn.disabled = false; btn.innerText = "PORTFÖYE KAYDET";
                 arhiveGec();
-
             } catch (err) {
-                btn.disabled = false; 
-                btn.innerText = "TEKRAR DENE";
+                btn.disabled = false; btn.innerText = "TEKRAR DENE";
+            }
+        }
+
+        // --- DÜZENLEME VE SİLME FONKSİYONLARI ---
+        function modalAc(id) {
+            aktifEditId = id;
+            const kayit = globalPortfoy.find(k => k.id == id);
+            if(!kayit) return;
+
+            // Kutuları mevcut verilerle doldur
+            document.getElementById('edit-ilce').value = kayit.ilce || '';
+            document.getElementById('edit-mahalle').value = kayit.mahalle || '';
+            document.getElementById('edit-ada').value = kayit.ada_no || '';
+            document.getElementById('edit-parsel').value = kayit.parsel_no || '';
+            document.getElementById('edit-m2').value = kayit.m2 || '';
+
+            // Modalı göster
+            document.getElementById('editModal').style.display = 'flex';
+        }
+
+        function modalKapat() {
+            document.getElementById('editModal').style.display = 'none';
+            aktifEditId = null;
+        }
+
+        async function kaydiGuncelle() {
+            if(!aktifEditId) return;
+            const btn = document.getElementById('modalSaveBtn');
+            btn.innerText = "GÜNCELLENİYOR..."; btn.disabled = true;
+
+            const payload = {
+                ilce: document.getElementById('edit-ilce').value,
+                mahalle: document.getElementById('edit-mahalle').value,
+                ada_no: parseInt(document.getElementById('edit-ada').value) || 0,
+                parsel_no: parseInt(document.getElementById('edit-parsel').value) || 0,
+                m2: parseFloat(document.getElementById('edit-m2').value) || 0
+            };
+
+            const { error } = await _client.from('arsa_kayitlari').update(payload).eq('id', aktifEditId);
+            
+            if(error) {
+                alert("Güncelleme Hatası: " + error.message);
+            } else {
+                modalKapat();
+                portfoyGetir(); // Listeyi yenile
+            }
+            
+            btn.innerText = "KAYDET"; btn.disabled = false;
+        }
+
+        async function kaydiSil() {
+            if(!aktifEditId) return;
+            // Çift güvenlik onayı
+            if(confirm("DİKKAT! Bu portföy kalıcı olarak silinecek. Emin misiniz?")) {
+                const { error } = await _client.from('arsa_kayitlari').delete().eq('id', aktifEditId);
+                if(error) {
+                    alert("Silme Hatası: " + error.message);
+                } else {
+                    modalKapat();
+                    portfoyGetir(); // Listeyi yenile
+                }
             }
         }
 
@@ -300,19 +388,23 @@
                 if (error) { box.innerHTML = "<p style='color:red; text-align:center;'>Bağlantı Hatası!</p>"; return; }
                 if (!data || data.length === 0) { box.innerHTML = "<p style='text-align:center; color:#888;'>Portföyünüzde henüz kayıt bulunmuyor.</p>"; return; }
                 
-                const guncelListe = data.reverse();
+                globalPortfoy = data.reverse(); // Veriyi küresel değişkende sakla ki düzenlemede bulabilelim
                 
-                box.innerHTML = guncelListe.map(i => {
+                box.innerHTML = globalPortfoy.map(i => {
                     const adres = String(i.mahalle).replace("Mahalle Bulunamadı", "").trim();
                     const baslik = adres ? `${String(i.ilce).toUpperCase()} - ${adres}` : String(i.ilce).toUpperCase();
                     
-                    // WHATSAPP MESAJI HAZIRLIĞI (Hatasız formatlama için encodeURIComponent kullanıldı)
                     const wpMesaj = encodeURIComponent(`🏢 *ARASBEY GAYRİMENKUL PORTFÖYÜ*\n\n📍 *Bölge:* ${baslik}\n📝 *Ada:* ${i.ada_no || 0} | *Parsel:* ${i.parsel_no || 0}\n📏 *Alan:* ${i.m2 || 0} m²\n\n🗺️ *Harita Konumu (Yol Tarifi):*\nhttps://maps.google.com/?q=${i.konum_lat},${i.konum_lng}`);
                     
                     return `
                     <div class="record-card">
                         ${i.fotograf_url ? `<img src="${i.fotograf_url}" class="record-img">` : ''}
                         <div class="record-body">
+                            
+                            <button onclick="modalAc('${i.id}')" class="btn-edit">
+                                ✏️ Düzenle
+                            </button>
+
                             <h3 class="record-title">📍 ${baslik}</h3>
                             
                             <div class="record-info">
@@ -333,10 +425,9 @@
                             <a href="https://parselsorgu.tkgm.gov.tr/#ara/cografi/${i.konum_lat}/${i.konum_lng}" target="_blank" class="btn-action btn-tkgm-large">
                                 🏛️ Resmi TKGM Sorgusu Yap
                             </a>
-                            <a href="https://www.google.com/maps/search/?api=1&query=$...{i.konum_lat},${i.konum_lng}" target="_blank" class="btn-action btn-maps">
+                            <a href="https://www.google.com/maps/search/?api=1&query=${i.konum_lat},${i.konum_lng}" target="_blank" class="btn-action btn-maps">
                                 🗺️ Arsayı Haritada Göster
                             </a>
-                            
                             <a href="https://api.whatsapp.com/send?text=${wpMesaj}" target="_blank" class="btn-action btn-whatsapp">
                                 📲 WhatsApp İle Müşteriye Gönder
                             </a>
