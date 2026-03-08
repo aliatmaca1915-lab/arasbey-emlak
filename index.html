@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Arasbey Emlak v10</title>
+    <title>Arasbey Emlak v11</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
@@ -17,13 +17,13 @@
         .save-btn { background: #2e7d32; color: white; opacity: 0.5; }
         .loc-btn { background: #1976d2; color: white; margin-top: 10px; }
         #status { text-align: center; margin-top: 10px; font-size: 13px; font-weight: bold; }
-        #conn-status { text-align: center; font-size: 11px; color: #f44336; font-weight: bold; margin-top: 10px; padding: 5px; border-radius: 5px; background: #ffebee; }
+        #conn-status { text-align: center; font-size: 11px; color: #f44336; font-weight: bold; margin-top: 10px; padding: 8px; border-radius: 8px; background: #ffebee; }
     </style>
 </head>
 <body>
     <div class="card">
         <h2>Arasbey Gayrimenkul</h2>
-        <div class="version">Sistem Sürümü: v10.0 (Garanti Bağlantı)</div>
+        <div class="version">Sistem Sürümü: v11.0 (Yedekli Bağlantı)</div>
         
         <label>İlçe</label>
         <input type="text" id="ilce" placeholder="Etimesgut, Sincan vb.">
@@ -38,57 +38,56 @@
 
         <button type="button" class="loc-btn" onclick="getGPS()">📍 Konumu İşle</button>
         <div id="status"></div>
-        <button type="button" class="save-btn" id="saveBtn" onclick="kesinKaydet()" disabled>BAĞLANTI BEKLENİYOR...</button>
-        <div id="conn-status">Bulut kütüphanesi yükleniyor, lütfen bekleyin...</div>
+        <button type="button" class="save-btn" id="saveBtn" onclick="kesinKaydet()" disabled>SİSTEM YÜKLENİYOR...</button>
+        <div id="conn-status">Bağlantı kuruluyor, lütfen bekleyin...</div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
     <script>
         var URL = 'https://khzbzwmibqstspoknsxu.supabase.co';
         var KEY = 'sb_publishable_M8VSs5G9EGjIJgNF2Bn14w_vGi95O0I';
         var _client;
-        var globalLat = 0;
-        var globalLng = 0;
+        var globalLat = 0, globalLng = 0;
 
-        // Kütüphanenin yüklenip yüklenmediğini kontrol eden döngü
-        var checkInterval = setInterval(function() {
+        // Sistem Kontrol Mekanizması
+        function sistemiBaslat() {
             if (typeof supabase !== 'undefined') {
                 try {
                     _client = supabase.createClient(URL, KEY);
                     var cs = document.getElementById('conn-status');
                     var sb = document.getElementById('saveBtn');
-                    cs.innerText = "✅ SİSTEM HAZIR: Bağlantı Başarılı";
+                    cs.innerText = "✅ SİSTEM AKTİF: Kayda Hazır";
                     cs.style.background = "#e8f5e9";
                     cs.style.color = "#2e7d32";
                     sb.innerText = "BULUTA KAYDET";
                     sb.style.opacity = "1";
                     sb.disabled = false;
-                    clearInterval(checkInterval);
+                    console.log("Supabase bağlandı.");
                 } catch (e) {
-                    console.error("Bağlantı hatası:", e);
+                    document.getElementById('conn-status').innerText = "❌ Bağlantı Hatası!";
                 }
+            } else {
+                // Eğer hala yüklenmediyse 2 saniye sonra tekrar dene
+                setTimeout(sistemiBaslat, 2000);
             }
-        }, 500);
+        }
+
+        // Sayfa açılır açılmaz kontrolü başlat
+        sistemiBaslat();
 
         function getGPS() {
             var st = document.getElementById('status');
             st.innerText = "GPS aranıyor...";
             navigator.geolocation.getCurrentPosition(function(p) {
-                globalLat = p.coords.latitude;
-                globalLng = p.coords.longitude;
-                st.innerText = "✅ Konum Alındı";
-                st.style.color = "green";
-            }, function(e) {
-                st.innerText = "❌ Konum İzni Gerekli!";
-            }, { enableHighAccuracy: true });
+                globalLat = p.coords.latitude; globalLng = p.coords.longitude;
+                st.innerText = "✅ Konum Alındı"; st.style.color = "green";
+            }, function(e) { st.innerText = "❌ GPS Hatası!"; }, { enableHighAccuracy: true });
         }
 
         async function kesinKaydet() {
             var btn = document.getElementById('saveBtn');
-            btn.innerText = "Veri Gönderiliyor...";
-            btn.disabled = true;
-
+            btn.innerText = "Gönderiliyor..."; btn.disabled = true;
             try {
                 var veri = {
                     ilce: document.getElementById('ilce').value || "Belirtilmedi",
@@ -96,25 +95,12 @@
                     ada_no: parseInt(document.getElementById('ada').value) || 0,
                     parsel_no: parseInt(document.getElementById('parsel').value) || 0,
                     m2: parseFloat(document.getElementById('m2').value) || 0,
-                    konum_lat: globalLat,
-                    konum_lng: globalLng
+                    konum_lat: globalLat, konum_lng: globalLng
                 };
-
                 var response = await _client.from('arsa_kayitlari').insert([veri]);
-
-                if (response.error) {
-                    alert("Kayıt Hatası: " + response.error.message);
-                    btn.innerText = "TEKRAR DENE";
-                    btn.disabled = false;
-                } else {
-                    alert("Başarılı! Arasbey Gayrimenkul portföyüne eklendi. 🚀");
-                    location.reload();
-                }
-            } catch (err) {
-                alert("Sistem Hatası: " + err.message);
-                btn.disabled = false;
-                btn.innerText = "YENİDEN DENE";
-            }
+                if (response.error) { alert("Hata: " + response.error.message); btn.disabled = false; }
+                else { alert("Başarılı! Ankara portföyüne eklendi. 🚀"); location.reload(); }
+            } catch (err) { alert("Sistem Hatası: " + err.message); btn.disabled = false; }
         }
     </script>
 </body>
