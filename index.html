@@ -3,105 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Arasbey Emlak v5</title>
+    <title>Arasbey Emlak v6</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: -apple-system, system-ui, sans-serif; padding: 15px; background: #f0f2f5; color: #1c1e21; }
-        .card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 480px; margin: auto; }
+        body { font-family: -apple-system, sans-serif; padding: 15px; background: #f0f2f5; }
+        .card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 450px; margin: auto; }
         h2 { text-align: center; color: #2e7d32; margin-bottom: 5px; }
         .version { text-align: center; font-size: 11px; color: #888; margin-bottom: 20px; }
-        label { font-weight: bold; display: block; margin-top: 15px; font-size: 14px; color: #555; }
-        input { width: 100%; padding: 14px; margin-top: 6px; border: 1.5px solid #ddd; border-radius: 12px; box-sizing: border-box; font-size: 16px; }
-        button { width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; margin-top: 20px; cursor: pointer; transition: 0.2s; }
+        label { font-weight: bold; display: block; margin-top: 15px; font-size: 14px; }
+        input { width: 100%; padding: 14px; margin-top: 6px; border: 1px solid #ddd; border-radius: 12px; box-sizing: border-box; font-size: 16px; }
+        button { width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; margin-top: 20px; cursor: pointer; }
         .save-btn { background: #2e7d32; color: white; }
         .loc-btn { background: #1976d2; color: white; margin-top: 10px; }
-        #status { text-align: center; margin-top: 12px; font-size: 13px; font-weight: bold; min-height: 20px; }
+        #status { text-align: center; margin-top: 10px; font-size: 13px; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="card">
         <h2>Arasbey Gayrimenkul</h2>
-        <div class="version">Sistem Sürümü: v5.0 (Tam Fonksiyonel)</div>
+        <div class="version">Sistem Sürümü: v6.0 (Debug Modu)</div>
         
         <label>İlçe</label>
         <input type="text" id="ilce" placeholder="Etimesgut, Sincan vb.">
-
         <label>Mahalle</label>
-        <input type="text" id="mahalle" placeholder="Mahalle adı girin">
-
+        <input type="text" id="mahalle" placeholder="Mahalle">
         <label>Ada No</label>
         <input type="number" id="ada" placeholder="Ada">
-
         <label>Parsel No</label>
         <input type="number" id="parsel" placeholder="Parsel">
-
         <label>Metrekare (m²)</label>
         <input type="number" step="0.01" id="m2" placeholder="0.00">
 
-        <label>Fotoğraf (Kamera veya Galeri)</label>
-        <input type="file" id="foto" accept="image/*">
-
-        <button type="button" class="loc-btn" onclick="konumAl()">📍 Konumu İşle</button>
+        <button type="button" class="loc-btn" onclick="getGPS()">📍 Konumu İşle</button>
         <div id="status"></div>
-        
-        <button type="button" class="save-btn" id="saveBtn" onclick="bulutaKaydet()">BULUTA KAYDET</button>
+        <button type="button" class="save-btn" id="saveBtn" onclick="debugKaydet()">BULUTA KAYDET</button>
     </div>
 
     <script>
-        // Supabase Bağlantısı
+        // Senin gerçek bilgilerin
         const URL = 'https://khzbzwmibqstspoknsxu.supabase.co';
         const KEY = 'sb_publishable_M8VSs5G9EGjIJgNF2Bn14w_vGi95O0I';
         const _client = supabase.createClient(URL, KEY);
 
         let lat = null, lng = null;
 
-        function konumAl() {
-            const st = document.getElementById('status');
-            st.innerText = "GPS aranıyor...";
+        function getGPS() {
             navigator.geolocation.getCurrentPosition(p => {
-                lat = p.coords.latitude;
-                lng = p.coords.longitude;
-                st.innerText = "✅ Konum Başarıyla Alındı";
-                st.style.color = "#2e7d32";
-            }, e => { 
-                alert("Hata: Konum izni verilmedi. Ayarları kontrol edin.");
-                st.innerText = "❌ Konum Hatası";
-                st.style.color = "#d32f2f";
-            }, { enableHighAccuracy: true });
+                lat = p.coords.latitude; lng = p.coords.longitude;
+                document.getElementById('status').innerText = "✅ Konum Tamam";
+            });
         }
 
-        async function bulutaKaydet() {
+        async function debugKaydet() {
             const btn = document.getElementById('saveBtn');
-            btn.innerText = "Bağlanıyor...";
+            btn.innerText = "1- Hazırlanıyor...";
             btn.disabled = true;
 
-            const veri = {
-                ilce: document.getElementById('ilce').value,
-                mahalle: document.getElementById('mahalle').value,
-                ada_no: parseInt(document.getElementById('ada').value) || 0,
-                parsel_no: parseInt(document.getElementById('parsel').value) || 0,
-                m2: parseFloat(document.getElementById('m2').value) || 0,
-                konum_lat: lat,
-                konum_lng: lng
-            };
-
             try {
+                const veri = {
+                    ilce: document.getElementById('ilce').value || "Boş",
+                    mahalle: document.getElementById('mahalle').value || "Boş",
+                    ada_no: parseInt(document.getElementById('ada').value) || 0,
+                    parsel_no: parseInt(document.getElementById('parsel').value) || 0,
+                    m2: parseFloat(document.getElementById('m2').value) || 0,
+                    konum_lat: lat,
+                    konum_lng: lng
+                };
+
+                btn.innerText = "2- Supabase'e Gönderiliyor...";
+                
+                // Kayıt işlemi
                 const { error } = await _client.from('arsa_kayitlari').insert([veri]);
 
                 if (error) {
-                    alert("Supabase Hatası: " + error.message + "\nİpucu: " + (error.hint || "RLS kapalı mı?"));
-                    btn.innerText = "TEKRAR DENE";
+                    alert("HATA: " + error.message + "\nİpucu: " + (error.hint || "Yok"));
+                    btn.innerText = "HATA ALINDI";
                     btn.disabled = false;
                 } else {
-                    alert("Arasbey Gayrimenkul: Kayıt Başarılı! 🚀");
-                    location.reload(); 
+                    alert("TEBRİKLER! Arasbey Gayrimenkul verisi başarıyla kaydedildi. 🚀");
+                    location.reload();
                 }
             } catch (err) {
-                alert("Sistem Hatası: " + err.message);
+                alert("SİSTEM HATASI: " + err.message);
                 btn.disabled = false;
-                btn.innerText = "HATA OLUŞTU";
+                btn.innerText = "BAĞLANTI HATASI";
             }
         }
     </script>
