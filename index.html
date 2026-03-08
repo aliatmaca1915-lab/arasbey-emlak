@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Arasbey Emlak v11</title>
+    <title>Arasbey Emlak v12</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
@@ -12,18 +12,17 @@
         h2 { text-align: center; color: #2e7d32; margin-bottom: 5px; }
         .version { text-align: center; font-size: 11px; color: #888; margin-bottom: 20px; }
         label { font-weight: bold; display: block; margin-top: 15px; font-size: 14px; }
-        input { width: 100%; padding: 14px; margin-top: 6px; border: 1px solid #ddd; border-radius: 12px; box-sizing: border-box; font-size: 16px; }
+        input { width: 100%; padding: 14px; margin-top: 6px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 16px; }
         button { width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; margin-top: 20px; cursor: pointer; }
-        .save-btn { background: #2e7d32; color: white; opacity: 0.5; }
+        .save-btn { background: #2e7d32; color: white; }
         .loc-btn { background: #1976d2; color: white; margin-top: 10px; }
-        #status { text-align: center; margin-top: 10px; font-size: 13px; font-weight: bold; }
-        #conn-status { text-align: center; font-size: 11px; color: #f44336; font-weight: bold; margin-top: 10px; padding: 8px; border-radius: 8px; background: #ffebee; }
+        #status { text-align: center; margin-top: 10px; font-size: 13px; font-weight: bold; color: #2e7d32; }
     </style>
 </head>
 <body>
     <div class="card">
         <h2>Arasbey Gayrimenkul</h2>
-        <div class="version">Sistem Sürümü: v11.0 (Yedekli Bağlantı)</div>
+        <div class="version">Sistem Sürümü: v12.0 (Hızlı & Saf Kod)</div>
         
         <label>İlçe</label>
         <input type="text" id="ilce" placeholder="Etimesgut, Sincan vb.">
@@ -37,70 +36,64 @@
         <input type="number" step="0.01" id="m2" placeholder="0.00">
 
         <button type="button" class="loc-btn" onclick="getGPS()">📍 Konumu İşle</button>
-        <div id="status"></div>
-        <button type="button" class="save-btn" id="saveBtn" onclick="kesinKaydet()" disabled>SİSTEM YÜKLENİYOR...</button>
-        <div id="conn-status">Bağlantı kuruluyor, lütfen bekleyin...</div>
+        <div id="status">Sistem Hazır ✅</div>
+        
+        <button type="button" class="save-btn" id="saveBtn" onclick="kesinKaydet()">BULUTA KAYDET</button>
     </div>
 
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-
     <script>
-        var URL = 'https://khzbzwmibqstspoknsxu.supabase.co';
-        var KEY = 'sb_publishable_M8VSs5G9EGjIJgNF2Bn14w_vGi95O0I';
-        var _client;
+        // Bilgilerin (Dış kütüphaneye gerek duymayan yeni sistem)
+        var API_URL = 'https://khzbzwmibqstspoknsxu.supabase.co/rest/v1/arsa_kayitlari';
+        var API_KEY = 'sb_publishable_M8VSs5G9EGjIJgNF2Bn14w_vGi95O0I';
         var globalLat = 0, globalLng = 0;
-
-        // Sistem Kontrol Mekanizması
-        function sistemiBaslat() {
-            if (typeof supabase !== 'undefined') {
-                try {
-                    _client = supabase.createClient(URL, KEY);
-                    var cs = document.getElementById('conn-status');
-                    var sb = document.getElementById('saveBtn');
-                    cs.innerText = "✅ SİSTEM AKTİF: Kayda Hazır";
-                    cs.style.background = "#e8f5e9";
-                    cs.style.color = "#2e7d32";
-                    sb.innerText = "BULUTA KAYDET";
-                    sb.style.opacity = "1";
-                    sb.disabled = false;
-                    console.log("Supabase bağlandı.");
-                } catch (e) {
-                    document.getElementById('conn-status').innerText = "❌ Bağlantı Hatası!";
-                }
-            } else {
-                // Eğer hala yüklenmediyse 2 saniye sonra tekrar dene
-                setTimeout(sistemiBaslat, 2000);
-            }
-        }
-
-        // Sayfa açılır açılmaz kontrolü başlat
-        sistemiBaslat();
 
         function getGPS() {
             var st = document.getElementById('status');
             st.innerText = "GPS aranıyor...";
             navigator.geolocation.getCurrentPosition(function(p) {
                 globalLat = p.coords.latitude; globalLng = p.coords.longitude;
-                st.innerText = "✅ Konum Alındı"; st.style.color = "green";
-            }, function(e) { st.innerText = "❌ GPS Hatası!"; }, { enableHighAccuracy: true });
+                st.innerText = "✅ Konum Alındı";
+            }, function(e) { alert("Konum izni verin!"); }, { enableHighAccuracy: true });
         }
 
         async function kesinKaydet() {
             var btn = document.getElementById('saveBtn');
             btn.innerText = "Gönderiliyor..."; btn.disabled = true;
+
+            var veri = {
+                ilce: document.getElementById('ilce').value || "Belirtilmedi",
+                mahalle: document.getElementById('mahalle').value || "Belirtilmedi",
+                ada_no: parseInt(document.getElementById('ada').value) || 0,
+                parsel_no: parseInt(document.getElementById('parsel').value) || 0,
+                m2: parseFloat(document.getElementById('m2').value) || 0,
+                konum_lat: globalLat, konum_lng: globalLng
+            };
+
             try {
-                var veri = {
-                    ilce: document.getElementById('ilce').value || "Belirtilmedi",
-                    mahalle: document.getElementById('mahalle').value || "Belirtilmedi",
-                    ada_no: parseInt(document.getElementById('ada').value) || 0,
-                    parsel_no: parseInt(document.getElementById('parsel').value) || 0,
-                    m2: parseFloat(document.getElementById('m2').value) || 0,
-                    konum_lat: globalLat, konum_lng: globalLng
-                };
-                var response = await _client.from('arsa_kayitlari').insert([veri]);
-                if (response.error) { alert("Hata: " + response.error.message); btn.disabled = false; }
-                else { alert("Başarılı! Ankara portföyüne eklendi. 🚀"); location.reload(); }
-            } catch (err) { alert("Sistem Hatası: " + err.message); btn.disabled = false; }
+                // Kütüphanesiz doğrudan bağlantı (Native Fetch)
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': API_KEY,
+                        'Authorization': 'Bearer ' + API_KEY,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify(veri)
+                });
+
+                if (response.ok) {
+                    alert("Tebrikler Ali! Arasbey Gayrimenkul kaydı başarıyla yapıldı. 🚀");
+                    location.reload();
+                } else {
+                    const errorData = await response.json();
+                    alert("Hata: " + errorData.message);
+                    btn.disabled = false; btn.innerText = "TEKRAR DENE";
+                }
+            } catch (err) {
+                alert("Bağlantı Hatası: İnternetinizi kontrol edin.");
+                btn.disabled = false; btn.innerText = "YENİDEN DENE";
+            }
         }
     </script>
 </body>
