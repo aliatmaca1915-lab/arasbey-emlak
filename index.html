@@ -18,10 +18,11 @@
             --text: #2c3e50;
             --card-shadow: 0 10px 30px rgba(0,0,0,0.05);
         }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); margin: 0; padding-bottom: 90px; color: var(--text); }
+        /* Body'ye padding-top ekledik ki sabit başlığın altında içerik kaybolmasın */
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); margin: 0; padding-top: 90px; padding-bottom: 90px; color: var(--text); }
         
-        /* VIP Üst Başlık */
-        .header { background: #fff; padding: 25px 15px 15px; text-align: center; border-bottom: 2px solid #f0f0f0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        /* VIP Üst Başlık (TAMAMEN SABİTLENDİ) */
+        .header { background: #fff; padding: 25px 15px 15px; text-align: center; border-bottom: 2px solid #f0f0f0; position: fixed; top: 0; left: 0; width: 100%; box-sizing: border-box; z-index: 1001; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
         .header h1 { margin: 0; font-size: 22px; color: var(--primary); font-weight: 900; letter-spacing: -0.5px; }
         .header p { margin: 5px 0 0; font-size: 10px; color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: 2px; }
 
@@ -32,7 +33,7 @@
         .nav-icon { font-size: 24px; display: block; margin-bottom: 5px; opacity: 0.5; transition: 0.3s; }
         .nav-item.active .nav-icon { opacity: 1; }
 
-        .content { display: none; padding: 20px 15px; max-width: 500px; margin: auto; }
+        .content { display: none; padding: 10px 15px 20px; max-width: 500px; margin: auto; }
         .content.active { display: block; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -73,6 +74,9 @@
         .btn-action { width: 100%; display: block; padding: 15px; border-radius: 12px; text-align: center; text-decoration: none; font-size: 12px; font-weight: 800; text-transform: uppercase; margin-bottom: 10px; box-sizing: border-box; letter-spacing: 0.5px; transition: 0.2s; }
         .btn-maps { background: #f0f4f8; color: #1a73e8; border: 1px solid #d2e3fc; }
         .btn-tkgm-large { background: rgba(212, 175, 55, 0.1); color: #9c7b3c; border: 1px solid rgba(212, 175, 55, 0.3); }
+        
+        /* Yeni WhatsApp Butonu Stili */
+        .btn-whatsapp { background: #25D366; color: white; border: none; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3); margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -159,6 +163,9 @@
                 }
             }
             if(id === 'tab-liste') document.getElementById('nav-liste').classList.add('active');
+            
+            // Sayfa başına kaydır
+            window.scrollTo(0,0);
         }
 
         function arhiveGec() {
@@ -208,11 +215,9 @@
             cLat = loc.lat();
             cLng = loc.lng();
             document.getElementById('coord-info').innerText = `${cLat.toFixed(5)}, ${cLng.toFixed(5)}`;
-            
             adresCek(cLat, cLng);
         }
 
-        // OTOMATİK İL/İLÇE/MAHALLE BULMA SİSTEMİ (ARTIK DÜZENLENEBİLİR)
         function adresCek(lat, lng) {
             document.getElementById('ilce').value = "Uydu Taranıyor...";
             document.getElementById('mahalle').value = "Uydu Taranıyor...";
@@ -227,7 +232,6 @@
                         if (comp.types.includes("sublocality") || comp.types.includes("neighborhood") || comp.types.includes("route")) mahalle = comp.long_name;
                     });
 
-                    // İnputları otomatik doldurur, ancak readonly MANTIKLARI KALDIRILDI. Sen elle silebilir/ekleyebilirsin.
                     document.getElementById('ilce').value = (il && ilce) ? `${ilce} / ${il}` : (ilce || il || "Belirtilmedi");
                     document.getElementById('mahalle').value = mahalle || "Mahalle Bulunamadı";
                 } else {
@@ -302,6 +306,9 @@
                     const adres = String(i.mahalle).replace("Mahalle Bulunamadı", "").trim();
                     const baslik = adres ? `${String(i.ilce).toUpperCase()} - ${adres}` : String(i.ilce).toUpperCase();
                     
+                    // WHATSAPP MESAJI HAZIRLIĞI (Hatasız formatlama için encodeURIComponent kullanıldı)
+                    const wpMesaj = encodeURIComponent(`🏢 *ARASBEY GAYRİMENKUL PORTFÖYÜ*\n\n📍 *Bölge:* ${baslik}\n📝 *Ada:* ${i.ada_no || 0} | *Parsel:* ${i.parsel_no || 0}\n📏 *Alan:* ${i.m2 || 0} m²\n\n🗺️ *Harita Konumu (Yol Tarifi):*\nhttps://maps.google.com/?q=${i.konum_lat},${i.konum_lng}`);
+                    
                     return `
                     <div class="record-card">
                         ${i.fotograf_url ? `<img src="${i.fotograf_url}" class="record-img">` : ''}
@@ -326,8 +333,12 @@
                             <a href="https://parselsorgu.tkgm.gov.tr/#ara/cografi/${i.konum_lat}/${i.konum_lng}" target="_blank" class="btn-action btn-tkgm-large">
                                 🏛️ Resmi TKGM Sorgusu Yap
                             </a>
-                            <a href="https://www.google.com/maps/search/?api=1&query=${i.konum_lat},${i.konum_lng}" target="_blank" class="btn-action btn-maps">
+                            <a href="https://www.google.com/maps/search/?api=1&query=$...{i.konum_lat},${i.konum_lng}" target="_blank" class="btn-action btn-maps">
                                 🗺️ Arsayı Haritada Göster
+                            </a>
+                            
+                            <a href="https://api.whatsapp.com/send?text=${wpMesaj}" target="_blank" class="btn-action btn-whatsapp">
+                                📲 WhatsApp İle Müşteriye Gönder
                             </a>
                         </div>
                     </div>
